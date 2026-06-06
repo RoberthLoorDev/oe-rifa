@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "temp-expo-app",
-    "slug": "temp-expo-app",
+    "name": "RifaApp",
+    "slug": "rifa-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "tempexpoapp",
-    "userInterfaceStyle": "automatic",
+    "scheme": "rifaapp",
+    "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -37,7 +37,7 @@
       ]
     ],
     "experiments": {
-      "typedRoutes": true,
+      "typedRoutes": false,
       "reactCompiler": true
     }
   }
