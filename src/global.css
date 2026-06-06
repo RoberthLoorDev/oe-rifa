@@ -1,9 +1,39 @@
-:root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 79 70 229; /* Indigo 600 */
+    --color-secondary: 6 182 212; /* Cyan 500 */
+    --color-background: 248 250 252; /* Slate 50 */
+    --color-surface: 255 255 255; /* White */
+    --color-text: 15 23 42; /* Slate 900 */
+    --color-text-muted: 100 116 139; /* Slate 500 */
+    --color-border: 226 232 240; /* Slate 200 */
+    --color-disponible: 16 185 129; /* Emerald 500 (Verde) */
+    --color-reservado: 245 158 11; /* Amber 500 (Naranja) */
+    --color-pagado: 239 68 68; /* Red 500 (Rojo) */
+    --color-cerrada: 100 116 139; /* Slate 500 */
+
+    --font-display: Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Courier New, monospace;
+    --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, sans-serif;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-primary: 99 102 241; /* Indigo 500 */
+      --color-secondary: 34 211 238; /* Cyan 400 */
+      --color-background: 15 23 42; /* Slate 900 */
+      --color-surface: 30 41 59; /* Slate 800 */
+      --color-text: 248 250 252; /* Slate 50 */
+      --color-text-muted: 148 163 184; /* Slate 400 */
+      --color-border: 51 65 85; /* Slate 700 */
+      --color-disponible: 52 211 153; /* Emerald 400 */
+      --color-reservado: 251 191 36; /* Amber 400 */
+      --color-pagado: 248 113 113; /* Red 400 */
+      --color-cerrada: 148 163 184; /* Slate 400 */
+    }
+  }
 }
