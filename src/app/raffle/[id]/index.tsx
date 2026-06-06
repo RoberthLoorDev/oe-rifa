@@ -1,127 +1,117 @@
 import React from 'react';
 import { View, Text, ScrollView, Pressable, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+import DetailBanner from '@/components/raffle-detail/DetailBanner';
+import ProgressCard from '@/components/raffle-detail/ProgressCard';
+import StatsGrid from '@/components/raffle-detail/StatsGrid';
+import RecentActivity from '@/components/raffle-detail/RecentActivity';
 
 export default function RaffleDashboardScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  // Mock metadata based on ID
-  const raffleTitle = id === '2' ? 'Rifa Laptop Gamer ASUS Rog Strix' : 'Rifa Pro-Fondos Viaje de Estudios';
-  const total = id === '2' ? 200 : 100;
-  const assigned = id === '2' ? 200 : 68;
-  const paid = id === '2' ? 190 : 45;
-  const reserved = id === '2' ? 10 : 23;
-  const price = id === '2' ? 10.0 : 5.0;
+  // Mock metadata based on ID matching the Rifa Solidaria Pro from HTML design
+  const raffleTitle = id === '2' ? 'iPhone 15 Pro' : 'Rifa Pro-Fondos Viaje';
+  const displayTitle = id === '1' ? 'Rifa Solidaria Pro' : raffleTitle;
   
+  const price = id === '2' ? 10 : id === '3' ? 3 : 5;
+  const total = id === '2' ? 100 : id === '3' ? 30 : 50;
+  const assigned = id === '2' ? 100 : id === '3' ? 8 : 23;
+  const paid = id === '2' ? 90 : id === '3' ? 5 : 15;
+  const reserved = id === '2' ? 10 : id === '3' ? 3 : 8;
+  const available = total - assigned;
+  const date = id === '2' ? '25 dic 2025' : id === '3' ? '31 dic 2024' : '20 dic 2025';
+  
+  const status = id === '2' ? 'Completa' : id === '3' ? 'Cerrada' : 'En curso';
+  const progressPercent = Math.round((assigned / total) * 100);
   const totalCollected = paid * price;
   const totalExpected = total * price;
-  const progressPercent = Math.round((assigned / total) * 100);
+
+  const imageUri = id === '2' 
+    ? 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=800&h=600&fit=crop' 
+    : 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&h=600&fit=crop';
+
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+  };
 
   return (
-    <ScrollView className="flex-1 bg-background p-6">
-      {/* Header / Navigation */}
-      <View className="mb-6 flex-row items-center justify-between">
-        <View className="flex-row items-center gap-2">
-          <Pressable onPress={() => router.replace('/')} className="mr-2">
-            <Text className="text-primary font-bold text-base">← Panel</Text>
-          </Pressable>
-          <Text className="text-xl font-black text-text">Detalle de Rifa</Text>
-        </View>
-        <Pressable 
-          onPress={() => router.push(`/raffle/${id}/edit`)}
-          className="border border-border bg-surface px-4 py-2 rounded-xl active:bg-slate-50"
-        >
-          <Text className="text-text font-bold text-xs">Editar</Text>
-        </Pressable>
-      </View>
+    <View className="flex-1 bg-app-bg relative">
+      <ScrollView 
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 60 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Banner Component */}
+        <DetailBanner 
+          title={displayTitle}
+          status={status}
+          imageUri={imageUri}
+          onBackPress={goBack}
+          onOptionsPress={() => {}}
+        />
 
-      {/* Raffle Info Card */}
-      <View className="bg-surface p-5 rounded-2xl border border-border shadow-sm mb-6">
-        <Text className="text-lg font-black text-text">{raffleTitle}</Text>
-        <Text className="text-xs text-textMuted mt-1">ID Rifa: #{id}</Text>
-        
-        {/* Progress bar */}
-        <View className="mt-4 mb-2">
-          <View className="flex-row justify-between text-xs text-textMuted mb-1.5">
-            <Text className="text-xs text-textMuted font-medium">Números vendidos</Text>
-            <Text className="text-xs font-bold text-text">{progressPercent}% ({assigned}/{total})</Text>
+        {/* Content overlapping the banner slightly */}
+        <View className="px-6 py-6 gap-y-6 relative z-10 -mt-3 bg-app-bg rounded-t-3xl">
+          
+          {/* Progreso (Money Raised Card) */}
+          <ProgressCard 
+            totalCollected={totalCollected}
+            totalExpected={totalExpected}
+            progressPercent={progressPercent}
+            date={date}
+          />
+
+          {/* Stats Grid (2 Columns) */}
+          <StatsGrid 
+            assigned={assigned}
+            paid={paid}
+            reserved={reserved}
+            available={available}
+          />
+
+          {/* Action Buttons */}
+          <View className="flex-row gap-3">
+            <Pressable 
+              onPress={() => router.push(`/raffle/${id}/numbers`)}
+              className="flex-1 bg-app-dark py-3.5 rounded-2xl items-center justify-center gap-1 active:scale-95 transition-all"
+              style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
+            >
+              <Ionicons name="grid-outline" size={20} color="#ffffff" />
+              <Text className="text-xs font-bold uppercase tracking-wider text-white">Números</Text>
+            </Pressable>
+
+            <Pressable 
+              className="flex-1 bg-white py-3.5 rounded-2xl items-center justify-center gap-1 shadow-card border border-gray-100 active:scale-95 transition-all"
+              style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
+            >
+              <Ionicons name="share-social-outline" size={20} color="#111827" />
+              <Text className="text-xs font-bold uppercase tracking-wider text-app-dark">Exportar</Text>
+            </Pressable>
+
+            <Pressable 
+              onPress={() => router.push(`/raffle/${id}/draw`)}
+              className="flex-1 bg-app-accent py-3.5 rounded-2xl items-center justify-center gap-1 shadow-lg shadow-app-accent/20 active:scale-95 transition-all"
+              style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
+            >
+              <Ionicons name="trophy-outline" size={20} color="#ffffff" />
+              <Text className="text-xs font-bold uppercase tracking-wider text-white">Sorteo</Text>
+            </Pressable>
           </View>
-          <View className="w-full h-2 bg-border rounded-full overflow-hidden">
-            <View 
-              className="h-full rounded-full bg-primary" 
-              style={{ width: `${progressPercent}%` }} 
-            />
-          </View>
-        </View>
-      </View>
 
-      {/* Stats Summary Grid */}
-      <View className="flex-row gap-4 mb-6">
-        <View className="flex-1 bg-surface p-4 rounded-xl border border-border">
-          <Text className="text-[10px] font-bold text-textMuted uppercase">Monto Cobrado</Text>
-          <Text className="text-xl font-black text-disponible mt-1">${totalCollected}</Text>
-          <Text className="text-[10px] text-textMuted mt-0.5">Meta: ${totalExpected}</Text>
-        </View>
-        <View className="flex-1 bg-surface p-4 rounded-xl border border-border">
-          <Text className="text-[10px] font-bold text-textMuted uppercase">Por Cobrar</Text>
-          <Text className="text-xl font-black text-reservado mt-1">${reserved * price}</Text>
-          <Text className="text-[10px] text-textMuted mt-0.5">{reserved} Reservados</Text>
-        </View>
-      </View>
+          {/* Actividad */}
+          <RecentActivity 
+            onViewAllPress={() => router.push(`/raffle/${id}/participants`)}
+          />
 
-      {/* Tickets Status Breakdown */}
-      <View className="bg-surface p-5 rounded-2xl border border-border mb-6 gap-3">
-        <Text className="text-sm font-bold text-text mb-1">Distribución de Números</Text>
-        
-        <View className="flex-row justify-between items-center py-2 border-b border-border">
-          <View className="flex-row items-center gap-2">
-            <View className="w-3.5 h-3.5 rounded-full bg-disponible" />
-            <Text className="text-sm text-text font-semibold">Pagados</Text>
-          </View>
-          <Text className="text-sm font-bold text-text">{paid}</Text>
         </View>
-        
-        <View className="flex-row justify-between items-center py-2 border-b border-border">
-          <View className="flex-row items-center gap-2">
-            <View className="w-3.5 h-3.5 rounded-full bg-reservado" />
-            <Text className="text-sm text-text font-semibold">Reservados</Text>
-          </View>
-          <Text className="text-sm font-bold text-text">{reserved}</Text>
-        </View>
-        
-        <View className="flex-row justify-between items-center py-2">
-          <View className="flex-row items-center gap-2">
-            <View className="w-3.5 h-3.5 rounded-full bg-border" />
-            <Text className="text-sm text-text font-semibold">Disponibles</Text>
-          </View>
-          <Text className="text-sm font-bold text-text">{total - assigned}</Text>
-        </View>
-      </View>
-
-      {/* Action Buttons */}
-      <View className="gap-3 mb-12">
-        <Pressable 
-          onPress={() => router.push(`/raffle/${id}/numbers`)}
-          className="bg-primary py-4 rounded-xl items-center shadow-md active:opacity-90"
-        >
-          <Text className="text-white font-extrabold text-sm">Ver Grilla de Números</Text>
-        </Pressable>
-
-        <Pressable 
-          onPress={() => router.push(`/raffle/${id}/participants`)}
-          className="bg-surface border border-border py-4 rounded-xl items-center active:bg-slate-50"
-        >
-          <Text className="text-text font-extrabold text-sm">Ver Participantes</Text>
-        </Pressable>
-
-        <Pressable 
-          onPress={() => router.push(`/raffle/${id}/draw`)}
-          className="bg-disponible py-4 rounded-xl items-center shadow-md active:opacity-90"
-        >
-          <Text className="text-white font-extrabold text-sm">Realizar Sorteo 🎲</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
