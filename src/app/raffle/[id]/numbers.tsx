@@ -1,74 +1,179 @@
-import React from 'react';
-import { View, Text, ScrollView, Pressable, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
+
+import FilterChips from '@/components/raffle/FilterChips';
+import NumbersGrid from '@/components/raffle/NumbersGrid';
+import ReleaseConfirmModal from '@/components/raffle/ReleaseConfirmModal';
+import TicketActionModal from '@/components/raffle/TicketActionModal';
+import { Ticket } from '@/components/raffle/types';
+
+// Deterministic mock data generation matching the raffle details summary
+const getNumbersData = (raffleId: string) => {
+  const total = raffleId === '2' ? 100 : raffleId === '3' ? 30 : 50;
+  const list: Ticket[] = [];
+
+  for (let i = 1; i <= total; i++) {
+    let status: 'DISPONIBLE' | 'RESERVADO' | 'PAGADO' = 'DISPONIBLE';
+    let participant = '';
+    let phone = '';
+
+    if (raffleId === '2') {
+      if (i % 10 === 0) {
+        status = 'RESERVADO';
+        participant = 'María Gómez';
+        phone = '+51 987 000 111';
+      } else {
+        status = 'PAGADO';
+        participant = 'Juan Pérez';
+        phone = '+51 987 654 321';
+      }
+    } else if (raffleId === '3') {
+      if (i === 7 || i === 14 || i === 21) {
+        status = 'RESERVADO';
+        participant = 'María Gómez';
+        phone = '+51 987 000 111';
+      } else if (i === 5 || i === 10 || i === 15 || i === 20 || i === 25) {
+        status = 'PAGADO';
+        participant = 'Juan Pérez';
+        phone = '+51 987 654 321';
+      }
+    } else {
+      // Default (ID 1, total 50)
+      const paidIndices = [3, 6, 9, 12, 18, 21, 24, 27, 33, 36, 39, 42, 48, 1, 2];
+      const reservedIndices = [5, 10, 20, 25, 35, 40, 50, 15];
+
+      if (paidIndices.includes(i)) {
+        status = 'PAGADO';
+        participant = 'Juan Pérez';
+        phone = '+51 987 654 321';
+      } else if (reservedIndices.includes(i)) {
+        status = 'RESERVADO';
+        participant = 'María Gómez';
+        phone = '+51 987 000 111';
+      }
+    }
+
+    list.push({ num: i, status, participant, phone });
+  }
+
+  return { total, list };
+};
 
 export default function NumbersGridScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  // Mock numbers grid (e.g. 50 numbers)
-  const numbersList = Array.from({ length: 50 }, (_, i) => {
-    const num = i + 1;
-    let status: 'DISPONIBLE' | 'RESERVADO' | 'PAGADO' = 'DISPONIBLE';
-    let participant = '';
-    
-    if (num % 5 === 0) {
-      status = 'PAGADO';
-      participant = 'Juan Pérez';
-    } else if (num % 7 === 0) {
-      status = 'RESERVADO';
-      participant = 'María Gómez';
+  const [tickets, setTickets] = useState<Ticket[]>(() => getNumbersData(id as string).list);
+  const [selectedFilter, setSelectedFilter] = useState<'ALL' | 'DISPONIBLE' | 'RESERVADO' | 'PAGADO'>('ALL');
+
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
+  const [showReleaseConfirm, setShowReleaseConfirm] = useState(false);
+
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace(`/raffle/${id}`);
     }
-    
-    return { num, status, participant };
-  });
+  };
+
+  const filteredTickets = useMemo(() => {
+    if (selectedFilter === 'ALL') return tickets;
+    return tickets.filter((t) => t.status === selectedFilter);
+  }, [tickets, selectedFilter]);
+
+  const handlePressTicket = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+  };
+
+  const handleSaveTicket = (isPaid: boolean, participantName: string, participantPhone: string) => {
+    if (!selectedTicket) return;
+
+    setTickets((prev) =>
+      prev.map((t) => {
+        if (t.num === selectedTicket.num) {
+          return {
+            ...t,
+            status: isPaid ? 'PAGADO' : 'RESERVADO',
+            participant: participantName,
+            phone: participantPhone,
+          };
+        }
+        return t;
+      }),
+    );
+
+    setSelectedTicket(null);
+  };
+
+  const handleConfirmRelease = () => {
+    if (!selectedTicket) return;
+
+    setTickets((prev) =>
+      prev.map((t) => {
+        if (t.num === selectedTicket.num) {
+          return {
+            ...t,
+            status: 'DISPONIBLE',
+            participant: '',
+            phone: '',
+          };
+        }
+        return t;
+      }),
+    );
+
+    setShowReleaseConfirm(false);
+    setSelectedTicket(null);
+  };
 
   return (
-    <ScrollView className="flex-1 bg-background p-6">
-      {/* Header */}
-      <View className="mb-6 flex-row items-center gap-2">
-        <Pressable onPress={() => router.back()} className="mr-2">
-          <Text className="text-primary font-bold text-base">← Panel</Text>
-        </Pressable>
-        <Text className="text-xl font-black text-text">Grilla de Números</Text>
+    <View className="flex-1 bg-white">
+      {/* HEADER CONTAINER */}
+      <View className="bg-white px-4 pt-12 pb-3 border-b border-gray-100 shadow-sm">
+        <View className="flex-row items-center mb-4">
+          <Pressable
+            onPress={goBack}
+            className="p-2 -ml-2 rounded-full active:bg-gray-100 transition"
+            style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
+          >
+            <Ionicons name="arrow-back" size={24} color="#111827" />
+          </Pressable>
+          <Text className="text-xl font-bold text-app-dark mx-auto pr-8">Números ({tickets.length})</Text>
+        </View>
+
+        {/* Horizontal Scrollable Filter Chips Component */}
+        <FilterChips selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />
       </View>
 
-      {/* Color Legend */}
-      <View className="bg-surface p-4 rounded-xl border border-border flex-row justify-around mb-6">
-        <View className="flex-row items-center gap-1.5">
-          <View className="w-3.5 h-3.5 rounded bg-disponible" />
-          <Text className="text-xs text-text font-bold">Libre</Text>
-        </View>
-        <View className="flex-row items-center gap-1.5">
-          <View className="w-3.5 h-3.5 rounded bg-reservado" />
-          <Text className="text-xs text-text font-bold">Reservado</Text>
-        </View>
-        <View className="flex-row items-center gap-1.5">
-          <View className="w-3.5 h-3.5 rounded bg-pagado" />
-          <Text className="text-xs text-text font-bold">Pagado</Text>
-        </View>
-      </View>
+      {/* NUMBERS GRID CONTAINER */}
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <NumbersGrid tickets={filteredTickets} onPressTicket={handlePressTicket} />
+      </ScrollView>
 
-      {/* Grid Container */}
-      <View className="bg-surface p-5 rounded-2xl border border-border shadow-sm mb-12">
-        <View className="flex-row flex-wrap justify-between gap-y-3.5">
-          {numbersList.map((item) => {
-            let bgClass = 'bg-disponible';
-            if (item.status === 'RESERVADO') bgClass = 'bg-reservado';
-            if (item.status === 'PAGADO') bgClass = 'bg-pagado';
-            
-            return (
-              <Pressable
-                key={item.num}
-                className={`w-[18%] aspect-square items-center justify-center rounded-xl ${bgClass} active:opacity-85`}
-                style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
-              >
-                <Text className="text-white font-black text-sm">{item.num}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-    </ScrollView>
+      {/* TICKET DETAILS & ACTION FORM BOTTOM SHEET MODAL */}
+      <TicketActionModal
+        visible={selectedTicket !== null && !showReleaseConfirm}
+        ticket={selectedTicket}
+        onClose={() => setSelectedTicket(null)}
+        onSave={handleSaveTicket}
+        onReleasePress={() => setShowReleaseConfirm(true)}
+      />
+
+      {/* ACCIDENTAL RELEASE WARNING CONFIRMATION MODAL */}
+      <ReleaseConfirmModal
+        visible={showReleaseConfirm}
+        ticket={selectedTicket}
+        onClose={() => setShowReleaseConfirm(false)}
+        onConfirm={handleConfirmRelease}
+      />
+    </View>
   );
 }
