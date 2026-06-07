@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Pressable, Platform, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import ImageModal from './ImageModal';
 
 interface DetailBannerProps {
   title: string;
@@ -19,9 +20,10 @@ export default function DetailBanner({
   onBackPress,
   onOptionsPress,
 }: DetailBannerProps) {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   return (
     <View className="relative h-80 w-full">
-      {/* Floating Header Buttons Overlay */}
       <View 
         className="absolute top-0 left-0 right-0 z-20 flex-row justify-between items-center px-4 pt-12 pb-4"
         style={{ backgroundColor: 'rgba(0,0,0,0.25)' }}
@@ -42,15 +44,22 @@ export default function DetailBanner({
         </Pressable>
       </View>
 
-      {/* Image Banner */}
-      <Image 
-        source={{ uri: imageUri }} 
+      <Pressable 
+        onPress={() => setIsModalVisible(true)}
         className="w-full h-full"
-        resizeMode="cover"
-      />
+        style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
+      >
+        <Image 
+          source={{ uri: imageUri }} 
+          className="w-full h-full"
+          resizeMode="cover"
+        />
+      </Pressable>
       
-      {/* Dark gradient overlay + status badge + title */}
-      <View className="absolute inset-0 bg-black/40 justify-end p-6 pb-6">
+      <View 
+        pointerEvents="none" 
+        className="absolute inset-0 bg-black/40 justify-end p-6 pb-6"
+      >
         <View className="items-start">
           <View className={`px-2.5 py-1 rounded-lg mb-2 uppercase ${
             status === 'Cerrada' ? 'bg-app-gray' : 'bg-app-green'
@@ -72,6 +81,12 @@ export default function DetailBanner({
           ) : null}
         </View>
       </View>
+
+      <ImageModal
+        visible={isModalVisible}
+        imageUri={imageUri}
+        onClose={() => setIsModalVisible(false)}
+      />
     </View>
   );
 }

@@ -7,6 +7,7 @@ interface ProgressCardProps {
   totalExpected: number;
   progressPercent: number;
   date: string;
+  daysRemaining: number;
 }
 
 export default function ProgressCard({
@@ -14,7 +15,19 @@ export default function ProgressCard({
   totalExpected,
   progressPercent,
   date,
+  daysRemaining,
 }: ProgressCardProps) {
+  let statusText = '';
+  if (daysRemaining < 0) {
+    statusText = `Sorteo finalizado hace ${Math.abs(daysRemaining)} ${Math.abs(daysRemaining) === 1 ? 'día' : 'días'}`;
+  } else if (daysRemaining === 0) {
+    statusText = 'El sorteo se realiza hoy';
+  } else if (daysRemaining === 1) {
+    statusText = 'Sorteo mañana';
+  } else {
+    statusText = `Sorteo en ${daysRemaining} días`;
+  }
+
   return (
     <View className="bg-white rounded-3xl p-5 shadow-card border border-gray-100">
       <View className="flex-row justify-between items-end mb-3">
@@ -39,7 +52,7 @@ export default function ProgressCard({
       <View className="flex-row items-center bg-gray-50 p-3 rounded-2xl border border-gray-100">
         <Ionicons name="time" size={14} color="#F59E0B" />
         <Text className="text-sm text-gray-500 font-semibold ml-2">
-          Sorteo en 14 días — {date}
+          {statusText} — {date}
         </Text>
       </View>
     </View>

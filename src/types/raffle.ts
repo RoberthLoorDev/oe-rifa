@@ -34,3 +34,13 @@ export interface RaffleModel {
   date: string;
   image: string | null;
 }
+
+export interface RaffleDetailModel extends RaffleModel {
+  paidNumbers: number;
+  reservedNumbers: number;
+  availableNumbers: number;
+  totalCollected: number;
+  totalExpected: number;
+  progressPercent: number;
+  daysRemaining: number;
+}
