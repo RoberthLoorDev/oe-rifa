@@ -1,6 +1,7 @@
+import React, { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View, Keyboard } from 'react-native';
 
 export default function CreateRaffleScreen() {
   const router = useRouter();
@@ -11,9 +12,35 @@ export default function CreateRaffleScreen() {
 
   const inputStyle = Platform.OS === 'web' ? { outlineStyle: 'none' as any } : undefined;
 
+  // Manual keyboard height listener to force layout resize on Android/Xiaomi devices
+  // where translucent status bar or Expo Go overrides the OS window soft input mode.
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+
+    const showListener = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showListener.remove();
+      hideListener.remove();
+    };
+  }, []);
+
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 bg-app-bg">
-      <View className="flex-1 relative">
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
+      className="flex-1 bg-app-bg"
+    >
+      <View 
+        className="flex-1"
+        style={Platform.OS === 'android' ? { paddingBottom: keyboardHeight } : undefined}
+      >
         {/* Header */}
         <View className="bg-white px-4 pt-12 pb-4 flex-row items-center border-b border-gray-200/50">
           <Pressable
@@ -28,10 +55,12 @@ export default function CreateRaffleScreen() {
 
         {/* Scrollable Form */}
         <ScrollView 
-          className="flex-1 px-6 py-6"
-          contentContainerStyle={{ paddingBottom: 120 }}
+          className="flex-1"
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 24 }}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
+          {/* Form Fields */}
           <View className="gap-y-6">
             {/* Foto Upload */}
             <View className="bg-white rounded-3xl p-2 shadow-card border border-gray-100">
@@ -52,9 +81,19 @@ export default function CreateRaffleScreen() {
               <Text className="text-base font-bold text-app-dark mb-2">Información básica</Text>
 
               <View>
-                <Text className="text-base font-semibold text-app-gray mb-1 ml-1">Título de la rifa</Text>
+                <Text className="text-sm font-semibold text-app-gray mb-1 ml-1">Título de la rifa</Text>
                 <TextInput
                   placeholder="Ej: Rifa Solidaria Navidad"
+                  placeholderTextColor="#9CA3AF"
+                  style={inputStyle}
+                  className="bg-app-bg border border-transparent focus:border-app-accent focus:bg-white py-3 px-4 rounded-xl text-base outline-none transition"
+                />
+              </View>
+
+              <View>
+                <Text className="text-sm font-semibold text-app-gray mb-1 ml-1">Producto / Premio (Opcional)</Text>
+                <TextInput
+                  placeholder="Ej: iPhone 15 Pro, Laptop Asus, Canasta"
                   placeholderTextColor="#9CA3AF"
                   style={inputStyle}
                   className="bg-app-bg border border-transparent focus:border-app-accent focus:bg-white py-3 px-4 rounded-xl text-base outline-none transition"
@@ -118,7 +157,7 @@ export default function CreateRaffleScreen() {
               <View>
                 <Text className="text-sm font-semibold text-app-gray mb-1 ml-1">Fecha del sorteo</Text>
                 <TextInput
-                  placeholder="AAAA-MM-DD"
+                  placeholder="DD/MM/YYYY"
                   placeholderTextColor="#9CA3AF"
                   style={inputStyle}
                   className="w-full bg-app-bg border border-transparent focus:border-app-accent focus:bg-white py-3 px-4 rounded-xl text-base font-medium text-app-gray outline-none transition"
@@ -126,18 +165,18 @@ export default function CreateRaffleScreen() {
               </View>
             </View>
           </View>
-        </ScrollView>
 
-        {/* Fading Fixed Bottom Button */}
-        <View className="absolute bottom-0 left-0 right-0 p-6 bg-app-bg/95 pt-8 border-t border-gray-200/20">
-          <Pressable
-            onPress={goBack}
-            className="w-full bg-app-accent hover:bg-app-accentHover py-4 rounded-2xl shadow-lg shadow-app-accent/20 items-center active:scale-[0.98] transition-all"
-            style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
-          >
-            <Text className="text-white font-bold text-lg">Crear Rifa</Text>
-          </Pressable>
-        </View>
+          {/* Sticky Bottom Button inside ScrollView */}
+          <View className="mt-8 pb-4">
+            <Pressable
+              onPress={goBack}
+              className="w-full bg-app-accent hover:bg-app-accentHover py-4 rounded-2xl shadow-lg shadow-app-accent/20 items-center active:scale-[0.98] transition-all"
+              style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
+            >
+              <Text className="text-white font-bold text-lg">Crear Rifa</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
       </View>
     </KeyboardAvoidingView>
   );
