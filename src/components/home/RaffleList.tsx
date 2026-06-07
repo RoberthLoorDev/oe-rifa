@@ -24,7 +24,6 @@ export default function RaffleList({ raffles, onPressRaffle }: RaffleListProps) 
             }`}
             style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
           >
-            {/* Image / Placeholder */}
             <View className="w-[70px] h-[70px] bg-gray-100 rounded-2xl flex-shrink-0 items-center justify-center overflow-hidden relative border border-gray-100">
               {raffle.image ? (
                 <Image 
@@ -37,7 +36,6 @@ export default function RaffleList({ raffles, onPressRaffle }: RaffleListProps) 
               )}
             </View>
 
-            {/* Card Content */}
             <View className="flex-1 min-w-0 pr-12">
               <View className="flex-row justify-between items-start mb-1">
                 <Text className="font-bold text-app-dark truncate pr-2 text-base" numberOfLines={1}>
@@ -67,7 +65,6 @@ export default function RaffleList({ raffles, onPressRaffle }: RaffleListProps) 
               </View>
             </View>
 
-            {/* Status Badge */}
             <View className="absolute right-4 top-4">
               <View className={`px-2.5 py-0.5 rounded-md ${
                 raffle.status === 'En curso' 
@@ -88,7 +85,6 @@ export default function RaffleList({ raffles, onPressRaffle }: RaffleListProps) 
               </View>
             </View>
 
-            {/* Price Badge */}
             <View className="absolute right-4 bottom-4 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
               <Text className="text-sm font-bold text-app-dark">${raffle.price}</Text>
             </View>

@@ -8,6 +8,7 @@ export interface RaffleEntity {
   status: 'EN_CURSO' | 'COMPLETA' | 'CERRADA';
   winner_ticket_num: number | null;
   winner_name: string | null;
+  image: string | null;
   created_at: string;
 }
 
@@ -18,6 +19,7 @@ export interface CreateRaffleInput {
   ticket_count: number;
   ticket_price: number;
   draw_date: Date;
+  image?: string;
 }
 
 export interface RaffleModel {

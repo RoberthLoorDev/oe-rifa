@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
+import { LogBox } from 'react-native';
 import { Stack } from 'expo-router';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import { initDatabase } from '../database/db';
 import '../global.css';
 
-// Disable strict mode warning triggered by internal template packages
+LogBox.ignoreLogs(['DateTimePicker: onChange is deprecated']);
+
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
@@ -12,7 +14,6 @@ configureReanimatedLogger({
 
 export default function RootLayout() {
   useEffect(() => {
-    // Inicializa la base de datos local SQLite al iniciar la aplicación
     initDatabase();
   }, []);
 

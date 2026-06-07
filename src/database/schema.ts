@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS raffles (
     status TEXT NOT NULL CHECK (status IN ('EN_CURSO', 'COMPLETA', 'CERRADA')) DEFAULT 'EN_CURSO',
     winner_ticket_num INTEGER,
     winner_name TEXT,
+    image TEXT,
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
 );
 

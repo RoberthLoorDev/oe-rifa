@@ -10,7 +10,7 @@ export async function getDbConnection() {
   if (dbInstance) return dbInstance;
   
   try {
-    dbInstance = await SQLite.openDatabaseAsync(DB_NAME);
+    dbInstance = await SQLite.openDatabaseAsync(DB_NAME, { useNewConnection: true });
     return dbInstance;
   } catch (error) {
     console.error(error);
@@ -22,6 +22,13 @@ export async function initDatabase(): Promise<boolean> {
   try {
     const db = await getDbConnection();
     await db.execAsync(CREATE_TABLES_SQL);
+    try {
+      await db.execAsync('ALTER TABLE raffles ADD COLUMN image TEXT;');
+    } catch (e: any) {
+      if (e && e.message && !e.message.includes('duplicate column name') && !e.message.includes('already exists')) {
+        console.error(e);
+      }
+    }
     return true;
   } catch (error) {
     console.error(error);

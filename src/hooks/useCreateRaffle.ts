@@ -11,6 +11,7 @@ export function useCreateRaffle() {
   const [ticketCount, setTicketCount] = useState('');
   const [ticketPrice, setTicketPrice] = useState('');
   const [drawDate, setDrawDate] = useState<Date>(new Date());
+  const [imageUri, setImageUri] = useState<string | null>(null);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export function useCreateRaffle() {
         ticket_count: count,
         ticket_price: price,
         draw_date: drawDate,
+        image: imageUri || undefined,
       });
 
       router.back();
@@ -83,6 +85,8 @@ export function useCreateRaffle() {
     setTicketPrice,
     drawDate,
     setDrawDate,
+    imageUri,
+    setImageUri,
     loading,
     error,
     setError,

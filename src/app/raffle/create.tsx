@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View, Keyboard, Animated } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View, Keyboard, Animated, Image } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
 import { useCreateRaffle } from '../../hooks/useCreateRaffle';
 
 const formatDrawDateDisplay = (date: Date): string => {
@@ -38,6 +39,8 @@ export default function CreateRaffleScreen() {
     setTicketPrice,
     drawDate,
     setDrawDate,
+    imageUri,
+    setImageUri,
     loading,
     error,
     setError,
@@ -115,18 +118,35 @@ export default function CreateRaffleScreen() {
     };
   }, []);
 
-  const handleDateValueChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
     if (selectedDate) {
       setDrawDate(selectedDate);
     }
-    if (Platform.OS === 'android') {
-      setShowDatePicker(false);
-    }
   };
 
-  const handleDateDismiss = () => {
-    if (Platform.OS === 'android') {
-      setShowDatePicker(false);
+  const handleSelectImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        showToast('Se requiere acceso a la galería para subir una foto.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImageUri(result.assets[0].uri);
+      }
+    } catch (err) {
+      showToast('Error al seleccionar la imagen.');
     }
   };
 
@@ -178,18 +198,38 @@ export default function CreateRaffleScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View className="gap-y-6">
-            <View className="bg-white rounded-3xl p-2 shadow-card border border-gray-100">
-              <Pressable
-                className="border-2 border-dashed border-gray-200 bg-gray-50 rounded-[1.3rem] p-8 flex-col items-center justify-center text-center active:bg-gray-100 transition"
-                style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
-              >
-                <View className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3">
-                  <Ionicons name="camera" size={20} color="#3B6FFF" />
+            {imageUri ? (
+              <View className="bg-white rounded-3xl p-2 shadow-card border border-gray-100 overflow-hidden">
+                <View className="relative w-full h-48 rounded-[1.3rem] overflow-hidden bg-gray-100 items-center justify-center border border-gray-100">
+                  <Image 
+                    source={{ uri: imageUri }} 
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                  <Pressable
+                    onPress={() => setImageUri(null)}
+                    className="absolute top-3 right-3 w-8 h-8 bg-black/60 rounded-full items-center justify-center active:bg-black/85"
+                    style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
+                  >
+                    <Ionicons name="close" size={18} color="#FFFFFF" />
+                  </Pressable>
                 </View>
-                <Text className="text-base font-semibold text-app-dark">Toca para subir foto</Text>
-                <Text className="text-sm text-app-gray mt-1">PNG o JPG max. 5MB</Text>
-              </Pressable>
-            </View>
+              </View>
+            ) : (
+              <View className="bg-white rounded-3xl p-2 shadow-card border border-gray-100">
+                <Pressable
+                  onPress={handleSelectImage}
+                  className="border-2 border-dashed border-gray-200 bg-gray-50 rounded-[1.3rem] p-8 flex-col items-center justify-center text-center active:bg-gray-100 transition"
+                  style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
+                >
+                  <View className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3">
+                    <Ionicons name="camera" size={20} color="#3B6FFF" />
+                  </View>
+                  <Text className="text-base font-semibold text-app-dark">Toca para subir foto</Text>
+                  <Text className="text-sm text-app-gray mt-1">PNG o JPG max. 5MB</Text>
+                </Pressable>
+              </View>
+            )}
 
             <View className="bg-white rounded-3xl p-5 shadow-card border border-gray-100 gap-y-4">
               <Text className="text-base font-bold text-app-dark mb-2">Información básica</Text>
@@ -293,8 +333,7 @@ export default function CreateRaffleScreen() {
                       value={drawDate}
                       mode="date"
                       display="compact"
-                      onValueChange={handleDateValueChange}
-                      onDismiss={handleDateDismiss}
+                      onValueChange={handleDateChange}
                       locale="es-ES"
                     />
                     <Ionicons name="calendar-outline" size={20} color="#9CA3AF" />
@@ -315,8 +354,8 @@ export default function CreateRaffleScreen() {
                         value={drawDate}
                         mode="date"
                         display="default"
-                        onValueChange={handleDateValueChange}
-                        onDismiss={handleDateDismiss}
+                        onValueChange={handleDateChange}
+                        onDismiss={() => setShowDatePicker(false)}
                       />
                     )}
                   </>
