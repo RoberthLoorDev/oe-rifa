@@ -16,6 +16,8 @@ export default function RaffleDashboardScreen() {
   const raffleTitle = id === '2' ? 'iPhone 15 Pro' : 'Rifa Pro-Fondos Viaje';
   const displayTitle = id === '1' ? 'Rifa Solidaria Pro' : raffleTitle;
   
+  const product = id === '1' ? 'iPhone 15 Pro' : id === '2' ? 'iPhone 15 Pro' : 'Viaje a Galápagos';
+  
   const price = id === '2' ? 10 : id === '3' ? 3 : 5;
   const total = id === '2' ? 100 : id === '3' ? 30 : 50;
   const assigned = id === '2' ? 100 : id === '3' ? 8 : 23;
@@ -51,6 +53,7 @@ export default function RaffleDashboardScreen() {
         {/* Banner Component */}
         <DetailBanner 
           title={displayTitle}
+          product={product}
           status={status}
           imageUri={imageUri}
           onBackPress={goBack}

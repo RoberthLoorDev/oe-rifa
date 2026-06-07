@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 interface DetailBannerProps {
   title: string;
+  product?: string;
   status: 'En curso' | 'Completa' | 'Cerrada';
   imageUri: string;
   onBackPress: () => void;
@@ -12,6 +13,7 @@ interface DetailBannerProps {
 
 export default function DetailBanner({
   title,
+  product,
   status,
   imageUri,
   onBackPress,
@@ -60,6 +62,14 @@ export default function DetailBanner({
           <Text className="text-3xl font-extrabold text-white leading-tight">
             {title}
           </Text>
+          {product ? (
+            <View className="flex-row items-center mt-1.5 gap-x-1.5 bg-black/30 px-2.5 py-1 rounded-lg self-start">
+              <Ionicons name="gift-outline" size={14} color="#DCFCE7" />
+              <Text className="text-xs font-bold text-[#DCFCE7]">
+                Premio: {product}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
     </View>

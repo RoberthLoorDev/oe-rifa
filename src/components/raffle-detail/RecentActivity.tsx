@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, Text, Pressable, Platform } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 
 interface RecentActivityProps {
   onViewAllPress: () => void;
@@ -9,12 +8,12 @@ export default function RecentActivity({ onViewAllPress }: RecentActivityProps) 
   return (
     <View className="gap-y-3">
       <View className="flex-row justify-between items-center px-1">
-        <Text className="text-base font-bold text-app-dark">Última actividad</Text>
-        <Pressable 
+        <Text className="text-lg font-bold text-app-dark">Participantes</Text>
+        <Pressable
           onPress={onViewAllPress}
           style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
         >
-          <Text className="text-sm font-bold text-app-accent">Ver todos</Text>
+          <Text className="text-lg font-bold text-app-accent">Ver todos</Text>
         </Pressable>
       </View>
 

@@ -65,6 +65,11 @@ export default function NumbersGridScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
+  // Mock metadata based on ID matching raffle details
+  const raffleTitle = id === '2' ? 'iPhone 15 Pro' : 'Rifa Pro-Fondos Viaje';
+  const displayTitle = id === '1' ? 'Rifa Solidaria Pro' : raffleTitle;
+  const product = id === '1' ? 'iPhone 15 Pro' : id === '2' ? 'iPhone 15 Pro' : 'Viaje a Galápagos';
+
   const [tickets, setTickets] = useState<Ticket[]>(() => getNumbersData(id as string).list);
   const [selectedFilter, setSelectedFilter] = useState<'ALL' | 'DISPONIBLE' | 'RESERVADO' | 'PAGADO'>('ALL');
 
@@ -134,7 +139,7 @@ export default function NumbersGridScreen() {
     <View className="flex-1 bg-white">
       {/* HEADER CONTAINER */}
       <View className="bg-white px-4 pt-12 pb-3 border-b border-gray-100 shadow-sm">
-        <View className="flex-row items-center mb-4">
+        <View className="flex-row items-center mb-3">
           <Pressable
             onPress={goBack}
             className="p-2 -ml-2 rounded-full active:bg-gray-100 transition"
@@ -142,7 +147,12 @@ export default function NumbersGridScreen() {
           >
             <Ionicons name="arrow-back" size={24} color="#111827" />
           </Pressable>
-          <Text className="text-xl font-bold text-app-dark mx-auto pr-8">Números ({tickets.length})</Text>
+          <View className="flex-1 items-center pr-8">
+            <Text className="text-xl font-bold text-app-dark">Números ({tickets.length})</Text>
+            <Text className="text-xs text-app-gray font-bold mt-0.5" numberOfLines={1}>
+              {displayTitle} {product ? `— ${product}` : ''}
+            </Text>
+          </View>
         </View>
 
         {/* Horizontal Scrollable Filter Chips Component */}
