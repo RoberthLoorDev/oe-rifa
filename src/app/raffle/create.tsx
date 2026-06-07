@@ -164,9 +164,9 @@ export default function CreateRaffleScreen() {
             }}
             pointerEvents="none"
           >
-            <View className="bg-red-50 border border-red-200 px-4 py-3 rounded-2xl flex-row items-center gap-x-2.5 shadow-xl shadow-red-500/10">
-              <Ionicons name="alert-circle" size={20} color="#EF4444" />
-              <Text className="text-red-700 font-extrabold flex-1 text-sm">{toastMessage}</Text>
+            <View className="bg-white px-4 py-3 rounded-full flex-row items-center gap-x-3 shadow-lg border border-gray-100/50">
+              <Ionicons name="alert-circle" size={22} color="#EF4444" />
+              <Text className="text-gray-700 font-bold text-sm flex-1 pr-2">{toastMessage}</Text>
             </View>
           </Animated.View>
         )}

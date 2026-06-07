@@ -1,87 +1,91 @@
+import React, { useMemo, useState, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, View, ActivityIndicator, Animated } from 'react-native';
 
 import FilterChips from '@/components/raffle/FilterChips';
 import NumbersGrid from '@/components/raffle/NumbersGrid';
 import ReleaseConfirmModal from '@/components/raffle/ReleaseConfirmModal';
 import TicketActionModal from '@/components/raffle/TicketActionModal';
 import { Ticket } from '@/components/raffle/types';
-
-// Deterministic mock data generation matching the raffle details summary
-const getNumbersData = (raffleId: string) => {
-  const total = raffleId === '2' ? 100 : raffleId === '3' ? 30 : 50;
-  const list: Ticket[] = [];
-
-  for (let i = 1; i <= total; i++) {
-    let status: 'DISPONIBLE' | 'RESERVADO' | 'PAGADO' = 'DISPONIBLE';
-    let participant = '';
-    let phone = '';
-
-    if (raffleId === '2') {
-      if (i % 10 === 0) {
-        status = 'RESERVADO';
-        participant = 'María Gómez';
-        phone = '+51 987 000 111';
-      } else {
-        status = 'PAGADO';
-        participant = 'Juan Pérez';
-        phone = '+51 987 654 321';
-      }
-    } else if (raffleId === '3') {
-      if (i === 7 || i === 14 || i === 21) {
-        status = 'RESERVADO';
-        participant = 'María Gómez';
-        phone = '+51 987 000 111';
-      } else if (i === 5 || i === 10 || i === 15 || i === 20 || i === 25) {
-        status = 'PAGADO';
-        participant = 'Juan Pérez';
-        phone = '+51 987 654 321';
-      }
-    } else {
-      // Default (ID 1, total 50)
-      const paidIndices = [3, 6, 9, 12, 18, 21, 24, 27, 33, 36, 39, 42, 48, 1, 2];
-      const reservedIndices = [5, 10, 20, 25, 35, 40, 50, 15];
-
-      if (paidIndices.includes(i)) {
-        status = 'PAGADO';
-        participant = 'Juan Pérez';
-        phone = '+51 987 654 321';
-      } else if (reservedIndices.includes(i)) {
-        status = 'RESERVADO';
-        participant = 'María Gómez';
-        phone = '+51 987 000 111';
-      }
-    }
-
-    list.push({ num: i, status, participant, phone });
-  }
-
-  return { total, list };
-};
+import { useRaffleTickets } from '../../../hooks/useRaffleTickets';
 
 export default function NumbersGridScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const raffleId = Array.isArray(id) ? id[0] : id;
 
-  // Mock metadata based on ID matching raffle details
-  const raffleTitle = id === '2' ? 'iPhone 15 Pro' : 'Rifa Pro-Fondos Viaje';
-  const displayTitle = id === '1' ? 'Rifa Solidaria Pro' : raffleTitle;
-  const product = id === '1' ? 'iPhone 15 Pro' : id === '2' ? 'iPhone 15 Pro' : 'Viaje a Galápagos';
+  const {
+    tickets,
+    raffleTitle,
+    product,
+    loading,
+    error,
+    assignTicket,
+    assignTicketsBulk,
+    releaseTicket
+  } = useRaffleTickets(raffleId || '');
 
-  const [tickets, setTickets] = useState<Ticket[]>(() => getNumbersData(id as string).list);
   const [selectedFilter, setSelectedFilter] = useState<'ALL' | 'DISPONIBLE' | 'RESERVADO' | 'PAGADO'>('ALL');
-
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-
   const [showReleaseConfirm, setShowReleaseConfirm] = useState(false);
+  const [selectedNums, setSelectedNums] = useState<number[]>([]);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const [toastVisible, setToastVisible] = useState(false);
+  const toastY = useRef(new Animated.Value(-100)).current;
+  const toastOpacity = useRef(new Animated.Value(0)).current;
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToastMessage(message);
+    setToastType(type);
+    setToastVisible(true);
+    
+    Animated.parallel([
+      Animated.timing(toastY, {
+        toValue: 20,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.timing(toastOpacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      })
+    ]).start();
+
+    const timer = setTimeout(() => {
+      hideToast();
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  };
+
+  const hideToast = () => {
+    Animated.parallel([
+      Animated.timing(toastY, {
+        toValue: -100,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(toastOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      setToastVisible(false);
+      setToastMessage(null);
+    });
+  };
 
   const goBack = () => {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace(`/raffle/${id}`);
+      router.replace(`/raffle/${raffleId}`);
     }
   };
 
@@ -91,53 +95,118 @@ export default function NumbersGridScreen() {
   }, [tickets, selectedFilter]);
 
   const handlePressTicket = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
+    if (ticket.status === 'DISPONIBLE') {
+      setSelectedNums((prev) =>
+        prev.includes(ticket.num)
+          ? prev.filter((n) => n !== ticket.num)
+          : [...prev, ticket.num]
+      );
+    } else {
+      setSelectedTicket(ticket);
+    }
   };
 
-  const handleSaveTicket = (isPaid: boolean, participantName: string, participantPhone: string) => {
-    if (!selectedTicket) return;
-
-    setTickets((prev) =>
-      prev.map((t) => {
-        if (t.num === selectedTicket.num) {
-          return {
-            ...t,
-            status: isPaid ? 'PAGADO' : 'RESERVADO',
-            participant: participantName,
-            phone: participantPhone,
-          };
-        }
-        return t;
-      }),
-    );
-
-    setSelectedTicket(null);
+  const handleSaveTicket = async (isPaid: boolean, participantName: string, participantPhone: string) => {
+    if (selectedTicket) {
+      try {
+        await assignTicket(selectedTicket.num, participantName, participantPhone, isPaid);
+        showToast(
+          `Boleto #${selectedTicket.num < 10 ? '0' + selectedTicket.num : selectedTicket.num} registrado como ${
+            isPaid ? 'pagado' : 'reservado'
+          }`, 
+          'success'
+        );
+      } catch (err) {
+        showToast('Ha ocurrido un error al registrar el boleto', 'error');
+      }
+      setSelectedTicket(null);
+    } else if (selectedNums.length > 0) {
+      try {
+        await assignTicketsBulk(selectedNums, participantName, participantPhone, isPaid);
+        const count = selectedNums.length;
+        showToast(
+          `${count} ${count === 1 ? 'boleto registrado' : 'boletos registrados'} como ${
+            isPaid ? 'pagado' : 'reservado'
+          }`, 
+          'success'
+        );
+        setSelectedNums([]);
+      } catch (err) {
+        showToast('Ha ocurrido un error al registrar los boletos', 'error');
+      }
+      setShowBulkModal(false);
+    }
   };
 
-  const handleConfirmRelease = () => {
+  const handleConfirmRelease = async () => {
     if (!selectedTicket) return;
-
-    setTickets((prev) =>
-      prev.map((t) => {
-        if (t.num === selectedTicket.num) {
-          return {
-            ...t,
-            status: 'DISPONIBLE',
-            participant: '',
-            phone: '',
-          };
-        }
-        return t;
-      }),
-    );
-
+    try {
+      await releaseTicket(selectedTicket.num);
+      showToast(
+        `Boleto #${selectedTicket.num < 10 ? '0' + selectedTicket.num : selectedTicket.num} liberado con éxito`, 
+        'success'
+      );
+    } catch (err) {
+      showToast('Ha ocurrido un error al liberar el boleto', 'error');
+    }
     setShowReleaseConfirm(false);
     setSelectedTicket(null);
   };
 
+  if (loading && tickets.length === 0) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color="#3B6FFF" />
+      </View>
+    );
+  }
+
+  if (error && tickets.length === 0) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center p-6">
+        <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
+        <Text className="text-lg font-bold text-app-dark mt-4 text-center">
+          {error}
+        </Text>
+        <Pressable 
+          onPress={goBack}
+          className="mt-6 bg-app-dark px-6 py-3 rounded-2xl active:scale-95 transition-all"
+        >
+          <Text className="text-white font-bold">Volver</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   return (
-    <View className="flex-1 bg-white">
-      {/* HEADER CONTAINER */}
+    <View className="flex-1 bg-white relative">
+      {toastVisible && (
+        <Animated.View
+          style={{
+            position: 'absolute',
+            top: 50,
+            left: 20,
+            right: 20,
+            zIndex: 9999,
+            elevation: 9999,
+            transform: [{ translateY: toastY }],
+            opacity: toastOpacity,
+          }}
+          pointerEvents="none"
+        >
+          <View className="bg-white px-4 py-3 rounded-full flex-row items-center gap-x-3 shadow-lg border border-gray-100/50">
+            <Ionicons 
+              name={toastType === 'success' ? 'checkmark-circle' : 'alert-circle'} 
+              size={22} 
+              color={toastType === 'success' ? '#22C55E' : '#EF4444'} 
+            />
+            <Text className="text-gray-700 font-bold text-sm flex-1 pr-2">
+              {toastMessage}
+            </Text>
+          </View>
+        </Animated.View>
+      )}
+
       <View className="bg-white px-4 pt-12 pb-3 border-b border-gray-100 shadow-sm">
         <View className="flex-row items-center mb-3">
           <Pressable
@@ -150,34 +219,53 @@ export default function NumbersGridScreen() {
           <View className="flex-1 items-center pr-8">
             <Text className="text-xl font-bold text-app-dark">Números ({tickets.length})</Text>
             <Text className="text-xs text-app-gray font-bold mt-0.5" numberOfLines={1}>
-              {displayTitle} {product ? `— ${product}` : ''}
+              {raffleTitle} {product ? `— ${product}` : ''}
             </Text>
           </View>
         </View>
 
-        {/* Horizontal Scrollable Filter Chips Component */}
         <FilterChips selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />
       </View>
 
-      {/* NUMBERS GRID CONTAINER */}
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
-        <NumbersGrid tickets={filteredTickets} onPressTicket={handlePressTicket} />
+        <NumbersGrid 
+          tickets={filteredTickets} 
+          onPressTicket={handlePressTicket} 
+          selectedNums={selectedNums}
+        />
       </ScrollView>
 
-      {/* TICKET DETAILS & ACTION FORM BOTTOM SHEET MODAL */}
+      {selectedNums.length > 0 && (
+        <View className="absolute bottom-6 right-6 z-40">
+          <Pressable
+            onPress={() => setShowBulkModal(true)}
+            className="flex-row items-center bg-app-accent px-5 py-4 rounded-full shadow-lg shadow-app-accent/25 active:scale-95 transition-all gap-x-2"
+            style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
+          >
+            <Ionicons name="checkmark-circle-outline" size={20} color="#FFFFFF" />
+            <Text className="text-white font-extrabold text-sm uppercase tracking-wider">
+              Asignar ({selectedNums.length})
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
       <TicketActionModal
-        visible={selectedTicket !== null && !showReleaseConfirm}
+        visible={selectedTicket !== null || showBulkModal}
         ticket={selectedTicket}
-        onClose={() => setSelectedTicket(null)}
+        selectedNums={selectedNums}
+        onClose={() => {
+          setSelectedTicket(null);
+          setShowBulkModal(false);
+        }}
         onSave={handleSaveTicket}
         onReleasePress={() => setShowReleaseConfirm(true)}
       />
 
-      {/* ACCIDENTAL RELEASE WARNING CONFIRMATION MODAL */}
       <ReleaseConfirmModal
         visible={showReleaseConfirm}
         ticket={selectedTicket}

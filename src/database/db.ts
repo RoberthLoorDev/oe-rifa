@@ -5,17 +5,24 @@ import { CREATE_TABLES_SQL } from './schema';
 const DB_NAME = 'rifa_app.db';
 
 let dbInstance: any = null;
+let dbPromise: Promise<any> | null = null;
 
 export async function getDbConnection() {
   if (dbInstance) return dbInstance;
+  if (dbPromise) return dbPromise;
   
-  try {
-    dbInstance = await SQLite.openDatabaseAsync(DB_NAME, { useNewConnection: true });
-    return dbInstance;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  dbPromise = (async () => {
+    try {
+      dbInstance = await SQLite.openDatabaseAsync(DB_NAME);
+      return dbInstance;
+    } catch (error) {
+      dbPromise = null;
+      console.error(error);
+      throw error;
+    }
+  })();
+
+  return dbPromise;
 }
 
 export async function initDatabase(): Promise<boolean> {

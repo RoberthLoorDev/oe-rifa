@@ -6,7 +6,8 @@ import {
   Platform, 
   Modal, 
   TextInput, 
-  KeyboardAvoidingView 
+  KeyboardAvoidingView,
+  ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Ticket } from './types';
@@ -14,6 +15,7 @@ import { Ticket } from './types';
 interface TicketActionModalProps {
   visible: boolean;
   ticket: Ticket | null;
+  selectedNums?: number[];
   onClose: () => void;
   onSave: (isPaid: boolean, participantName: string, participantPhone: string) => void;
   onReleasePress: () => void;
@@ -22,6 +24,7 @@ interface TicketActionModalProps {
 export default function TicketActionModal({
   visible,
   ticket,
+  selectedNums = [],
   onClose,
   onSave,
   onReleasePress,
@@ -31,12 +34,19 @@ export default function TicketActionModal({
   const [isPaid, setIsPaid] = useState(false);
   const [error, setError] = useState('');
 
-  // Sync internal state when ticket changes
+  const isBulk = ticket === null;
+
   useEffect(() => {
-    if (ticket) {
-      setParticipantName(ticket.participant || '');
-      setParticipantPhone(ticket.phone || '');
-      setIsPaid(ticket.status === 'PAGADO');
+    if (visible) {
+      if (ticket) {
+        setParticipantName(ticket.participant || '');
+        setParticipantPhone(ticket.phone || '');
+        setIsPaid(ticket.status === 'PAGADO');
+      } else {
+        setParticipantName('');
+        setParticipantPhone('');
+        setIsPaid(false);
+      }
       setError('');
     }
   }, [ticket, visible]);
@@ -51,7 +61,7 @@ export default function TicketActionModal({
 
   const webInputStyle = Platform.OS === 'web' ? { outlineStyle: 'none' as any } : undefined;
 
-  if (!ticket) return null;
+  if (!ticket && selectedNums.length === 0) return null;
 
   return (
     <Modal
@@ -73,32 +83,71 @@ export default function TicketActionModal({
             onPress={onClose} 
           />
           
-          <View className="bg-white rounded-t-[2.5rem] p-6 pb-10 shadow-sheet border-t border-gray-100 gap-y-5">
-            {/* Indicator handle */}
+          <View className="bg-white rounded-t-[2.5rem] p-6 pb-10 shadow-sheet gap-y-5">
             <View className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto" />
 
-            {/* Header info */}
             <View className="flex-row justify-between items-center mt-2">
-              <View>
-                <Text className="text-sm text-app-gray font-bold uppercase tracking-wider">Gestión de Boleto</Text>
-                <Text className="text-2xl font-black text-app-dark">Boleto #{ticket.num < 10 ? `0${ticket.num}` : ticket.num}</Text>
+              <View className="flex-1 pr-2">
+                <Text className="text-sm text-app-gray font-bold uppercase tracking-wider">
+                  {isBulk ? 'Asignación Masiva' : 'Gestión de Boleto'}
+                </Text>
+                <Text className="text-2xl font-black text-app-dark" numberOfLines={1}>
+                  {isBulk 
+                    ? `Asignar Boletos` 
+                    : `Boleto #${ticket.num < 10 ? `0${ticket.num}` : ticket.num}`
+                  }
+                </Text>
               </View>
-              <View className={`px-3 py-1.5 rounded-xl border ${
-                ticket.status === 'PAGADO' ? 'bg-app-redLight border-app-redBorder' :
-                ticket.status === 'RESERVADO' ? 'bg-app-orangeLight border-app-orangeBorder' :
-                'bg-app-greenLight border-app-greenBorder'
+              <View className={`px-3 py-1.5 rounded-xl ${
+                isBulk 
+                  ? 'bg-blue-50' 
+                  : ticket.status === 'PAGADO' 
+                  ? 'bg-app-redLight' 
+                  : ticket.status === 'RESERVADO' 
+                  ? 'bg-app-orangeLight' 
+                  : 'bg-app-greenLight'
               }`}>
                 <Text className={`text-xs font-black uppercase ${
-                  ticket.status === 'PAGADO' ? 'text-app-red' :
-                  ticket.status === 'RESERVADO' ? 'text-app-orange' :
-                  'text-app-green'
+                  isBulk 
+                    ? 'text-app-accent' 
+                    : ticket.status === 'PAGADO' 
+                    ? 'text-app-red' 
+                    : ticket.status === 'RESERVADO' 
+                    ? 'text-app-orange' 
+                    : 'text-app-green'
                 }`}>
-                  {ticket.status === 'DISPONIBLE' ? 'Libre' : ticket.status}
+                  {isBulk 
+                    ? `Múltiple (${selectedNums.length})` 
+                    : ticket.status === 'DISPONIBLE' 
+                    ? 'Libre' 
+                    : ticket.status
+                  }
                 </Text>
               </View>
             </View>
 
-            {/* Participant Form (Always open) */}
+            {isBulk && selectedNums.length > 0 && (
+              <View className="gap-y-2">
+                <Text className="text-xs font-bold text-app-gray uppercase tracking-wider ml-1">
+                  Números seleccionados:
+                </Text>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false} 
+                  contentContainerStyle={{ gap: 8 }}
+                  className="py-1"
+                >
+                  {selectedNums.map((num) => (
+                    <View key={num} className="bg-blue-50/50 border border-blue-100/30 px-3.5 py-1.5 rounded-xl">
+                      <Text className="font-extrabold text-app-accent text-sm">
+                        #{num < 10 ? `0${num}` : num}
+                      </Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
             <View className="gap-y-3 mt-1">
               <View>
                 <Text className="text-sm font-semibold text-app-gray mb-1.5 ml-1">Nombre del participante</Text>
@@ -131,10 +180,9 @@ export default function TicketActionModal({
               </View>
             </View>
 
-            {/* Custom sliding Checkbox/Switch for paid state (Using violet primary color) */}
             <Pressable 
               onPress={() => setIsPaid(!isPaid)} 
-              className="flex-row items-center justify-between bg-gray-50 border border-gray-100 p-4 rounded-2xl active:bg-gray-100/50 mt-1"
+              className="flex-row items-center justify-between bg-gray-50 p-4 rounded-2xl active:bg-gray-100/50 mt-1"
               style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
             >
               <View className="flex-row items-center gap-3 flex-1 pr-4">
@@ -148,33 +196,30 @@ export default function TicketActionModal({
                 <View className="flex-1">
                   <Text className="text-base font-bold text-app-dark">¿Pago completado?</Text>
                   <Text className="text-sm text-app-gray mt-1">
-                    {isPaid ? 'Boleto pagado por completo' : 'Boleto apartado (pendiente de pago)'}
+                    {isPaid ? 'Boletos pagados por completo' : 'Boletos apartados (pendientes de pago)'}
                   </Text>
                 </View>
               </View>
               
-              {/* Switch Slider */}
               <View className={`w-12 h-7 rounded-full p-1 justify-center ${isPaid ? 'bg-app-accent items-end' : 'bg-gray-300 items-start'}`}>
                 <View className="w-5 h-5 bg-white rounded-full shadow-sm" />
               </View>
             </Pressable>
 
-            {/* Release Ticket Option (Only when it's not currently free/disponible) */}
-            {ticket.status !== 'DISPONIBLE' && (
+            {!isBulk && ticket.status !== 'DISPONIBLE' && (
               <Pressable
                 onPress={onReleasePress}
-                className="w-full bg-red-50 py-3 rounded-2xl items-center justify-center border border-red-100 active:bg-red-100 transition-all mt-1"
+                className="w-full bg-red-50 py-3.5 rounded-2xl items-center justify-center active:bg-red-100 transition-all mt-1"
                 style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
               >
                 <Text className="text-sm font-bold text-app-red">Liberar boleto (Disponible)</Text>
               </Pressable>
             )}
 
-            {/* Save and Cancel Buttons */}
             <View className="flex-row gap-3 mt-4">
               <Pressable
                 onPress={onClose}
-                className="flex-1 bg-gray-100 py-3.5 rounded-2xl items-center justify-center border border-gray-200/50 active:scale-95 transition-all"
+                className="flex-1 bg-gray-100 py-3.5 rounded-2xl items-center justify-center active:scale-95 transition-all"
                 style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
               >
                 <Text className="text-sm font-bold text-app-dark">Cancelar</Text>

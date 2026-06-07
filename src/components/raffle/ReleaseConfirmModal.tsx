@@ -29,13 +29,12 @@ export default function ReleaseConfirmModal({
         className="flex-1 items-center justify-center p-6"
         style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       >
-        {/* Backdrop pressable to close when tapping outside */}
         <Pressable 
           className="absolute inset-0" 
           onPress={onClose} 
         />
 
-        <View className="bg-white rounded-3xl p-6 w-full max-w-sm border border-gray-100 gap-y-5 relative z-10">
+        <View className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl gap-y-5 relative z-10">
           <View className="items-center mt-2">
             <View className="w-14 h-14 bg-red-50 rounded-full items-center justify-center mb-3">
               <Ionicons name="warning-outline" size={30} color="#DC2626" />
