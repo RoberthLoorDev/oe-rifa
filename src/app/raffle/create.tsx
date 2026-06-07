@@ -5,16 +5,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput,
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { useCreateRaffle } from '../../hooks/useCreateRaffle';
-
-const formatDrawDateDisplay = (date: Date): string => {
-  const formatted = date.toLocaleDateString('es-ES', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-};
+import { formatDrawDateDisplay } from '../../utils/date';
 
 export default function CreateRaffleScreen() {
   const router = useRouter();
