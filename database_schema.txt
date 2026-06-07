@@ -1,0 +1,152 @@
+================================================================================
+ESQUEMA DE BASE DE DATOS LOCAL (SQL / SQLite) - RifaApp
+================================================================================
+
+Este archivo contiene la definición del esquema relacional DDL de base de datos
+para usar con `expo-sqlite` en el almacenamiento local del dispositivo.
+
+--------------------------------------------------------------------------------
+1. CODIGO DDL DE CREACION (SQL)
+--------------------------------------------------------------------------------
+
+-- Activar integridad referencial de llaves foráneas en SQLite
+PRAGMA foreign_keys = ON;
+
+-- Tabla de Rifas
+CREATE TABLE IF NOT EXISTS raffles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    product TEXT, -- Campo opcional para Producto / Premio
+    ticket_count INTEGER NOT NULL CHECK (ticket_count IN (30, 50, 100, 1000)),
+    ticket_price REAL NOT NULL CHECK (ticket_price >= 0),
+    draw_date TEXT NOT NULL, -- Formato ISO8601 o YYYY-MM-DD
+    status TEXT NOT NULL CHECK (status IN ('EN_CURSO', 'COMPLETA', 'CERRADA')) DEFAULT 'EN_CURSO',
+    winner_ticket_num INTEGER, -- Almacena el número ganador tras el sorteo
+    winner_name TEXT, -- Almacena el nombre del ganador para consulta rápida
+    created_at TEXT DEFAULT (datetime('now', 'localtime'))
+);
+
+-- Tabla de Boletos / Participantes
+CREATE TABLE IF NOT EXISTS tickets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    raffle_id INTEGER NOT NULL,
+    ticket_num INTEGER NOT NULL CHECK (ticket_num >= 1),
+    participant_name TEXT NOT NULL,
+    participant_phone TEXT,
+    status TEXT NOT NULL CHECK (status IN ('RESERVADO', 'PAGADO')),
+    updated_at TEXT DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (raffle_id) REFERENCES raffles (id) ON DELETE CASCADE,
+    UNIQUE (raffle_id, ticket_num) -- Evita duplicidad de boletos en el mismo sorteo
+);
+
+-- Tabla de Registro de Actividad Reciente
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    raffle_id INTEGER NOT NULL,
+    description TEXT NOT NULL, -- Ejemplo: 'Juan Pérez pagó el boleto 03'
+    created_at TEXT DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (raffle_id) REFERENCES raffles (id) ON DELETE CASCADE
+);
+
+-- Índices optimizados para mejorar búsquedas y velocidad de renderizado
+CREATE INDEX IF NOT EXISTS idx_tickets_raffle ON tickets (raffle_id);
+CREATE INDEX IF NOT EXISTS idx_logs_raffle ON activity_logs (raffle_id);
+
+
+--------------------------------------------------------------------------------
+2. FORMATO MERMAID ER-DIAGRAM (Pegar en una IA para graficar)
+--------------------------------------------------------------------------------
+
+erDiagram
+    RAFFLES {
+        int id PK
+        string title
+        string product
+        int ticket_count
+        float ticket_price
+        string draw_date
+        string status
+        int winner_ticket_num
+        string winner_name
+        timestamp created_at
+    }
+
+    TICKETS {
+        int id PK
+        int raffle_id FK
+        int ticket_num
+        string participant_name
+        string participant_phone
+        string status
+        timestamp updated_at
+    }
+
+    ACTIVITY_LOGS {
+        int id PK
+        int raffle_id FK
+        string description
+        timestamp created_at
+    }
+
+    RAFFLES ||--o{ TICKETS : "tiene"
+    RAFFLES ||--o{ ACTIVITY_LOGS : "registra"
+
+
+--------------------------------------------------------------------------------
+3. FORMATO DBML (Pegar en dbdiagram.io)
+--------------------------------------------------------------------------------
+
+Table raffles {
+  id integer [primary key, increment]
+  title text [not null]
+  product text
+  ticket_count integer [not null]
+  ticket_price real [not null]
+  draw_date text [not null]
+  status text [not null, default: 'EN_CURSO']
+  winner_ticket_num integer
+  winner_name text
+  created_at text
+}
+
+Table tickets {
+  id integer [primary key, increment]
+  raffle_id integer [not null]
+  ticket_num integer [not null]
+  participant_name text [not null]
+  participant_phone text
+  status text [not null]
+  updated_at text
+}
+
+Table activity_logs {
+  id integer [primary key, increment]
+  raffle_id integer [not null]
+  description text [not null]
+  created_at text
+}
+
+Ref: tickets.raffle_id > raffles.id [delete: cascade]
+Ref: activity_logs.raffle_id > raffles.id [delete: cascade]
+
+
+--------------------------------------------------------------------------------
+4. CONSULTA ANALITICA DEL DASHBOARD (CALCULO DE METRICAS AGREGADAS)
+--------------------------------------------------------------------------------
+
+SELECT 
+    r.id,
+    r.title,
+    r.product,
+    r.ticket_count,
+    r.ticket_price,
+    COUNT(CASE WHEN t.status = 'PAGADO' THEN 1 END) AS count_paid,
+    COUNT(CASE WHEN t.status = 'RESERVADO' THEN 1 END) AS count_reserved,
+    (r.ticket_count - COUNT(t.id)) AS count_available,
+    COUNT(CASE WHEN t.status = 'PAGADO' THEN 1 END) * r.ticket_price AS money_collected,
+    COUNT(CASE WHEN t.status = 'RESERVADO' THEN 1 END) * r.ticket_price AS money_pending,
+    r.ticket_count * r.ticket_price AS money_expected
+FROM raffles r
+LEFT JOIN tickets t ON r.id = t.raffle_id
+WHERE r.id = ?
+GROUP BY r.id;
