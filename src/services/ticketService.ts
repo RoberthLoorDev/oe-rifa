@@ -1,6 +1,7 @@
 import { ticketRepository } from '../repositories/ticketRepository';
 import { activityService } from './activityService';
 import { Ticket } from '../components/raffle/types';
+import { Participant } from '../components/participants/types';
 
 export const ticketService = {
   async getTicketsForGrid(raffleId: string, totalNumbers: number): Promise<Ticket[]> {
@@ -91,5 +92,40 @@ export const ticketService = {
       id, 
       `Se liberó el boleto #${num < 10 ? '0' + num : num} que pertenecía a ${name}.`
     );
+  },
+
+  async getParticipants(raffleId: string): Promise<Participant[]> {
+    const id = parseInt(raffleId, 10);
+    if (isNaN(id)) return [];
+
+    const assigned = await ticketRepository.getByRaffleId(id);
+    const participantMap = new Map<string, Participant>();
+
+    for (const t of assigned) {
+      const key = `${t.participant_name.trim().toLowerCase()}||${(t.participant_phone || '').trim().toLowerCase()}`;
+      
+      const existing = participantMap.get(key);
+      if (existing) {
+        existing.numbers.push(t.ticket_num);
+        if (t.status === 'RESERVADO') {
+          existing.status = 'RESERVADO';
+        }
+      } else {
+        participantMap.set(key, {
+          id: key,
+          name: t.participant_name,
+          phone: t.participant_phone || '',
+          numbers: [t.ticket_num],
+          status: t.status
+        });
+      }
+    }
+
+    const list = Array.from(participantMap.values());
+    for (const p of list) {
+      p.numbers.sort((a, b) => a - b);
+    }
+
+    return list.sort((a, b) => a.name.localeCompare(b.name));
   }
 };
