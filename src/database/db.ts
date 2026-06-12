@@ -36,6 +36,13 @@ export async function initDatabase(): Promise<boolean> {
         console.error(e);
       }
     }
+    try {
+      await db.execAsync('ALTER TABLE raffles ADD COLUMN description TEXT;');
+    } catch (e: any) {
+      if (e && e.message && !e.message.includes('duplicate column name') && !e.message.includes('already exists')) {
+        console.error(e);
+      }
+    }
     return true;
   } catch (error) {
     console.error(error);

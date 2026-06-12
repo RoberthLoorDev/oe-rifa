@@ -68,6 +68,13 @@ export default function RaffleDashboardScreen() {
         />
 
         <View className="px-6 py-6 gap-y-6 relative z-10 -mt-3 bg-app-bg rounded-t-3xl">
+          {raffle.description ? (
+            <View className="bg-white rounded-3xl p-5 shadow-card border border-gray-100/50">
+              <Text className="text-xs font-black text-app-gray uppercase tracking-widest mb-1.5">Descripción</Text>
+              <Text className="text-base text-slate-700 leading-relaxed">{raffle.description}</Text>
+            </View>
+          ) : null}
+
           <ProgressCard 
             totalCollected={raffle.totalCollected}
             totalExpected={raffle.totalExpected}
@@ -98,6 +105,7 @@ export default function RaffleDashboardScreen() {
             </Pressable>
 
             <Pressable 
+              onPress={() => router.push(`/raffle/${raffleId}/share`)}
               className="flex-1 bg-white py-3.5 rounded-2xl items-center justify-center gap-1 shadow-card border border-gray-100 active:scale-95 transition-all"
               style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
             >

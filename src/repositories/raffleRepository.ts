@@ -5,6 +5,7 @@ export interface RaffleDbRow {
   id: number;
   title: string;
   product: string | null;
+  description: string | null;
   ticket_count: number;
   ticket_price: number;
   draw_date: string;
@@ -20,13 +21,14 @@ export const raffleRepository = {
     ticketCount: number,
     ticketPrice: number,
     drawDate: string,
-    image: string | null
+    image: string | null,
+    description: string | null = null
   ): Promise<number> {
     const db = await getDbConnection();
     const result = await db.runAsync(
-      `INSERT INTO raffles (title, product, ticket_count, ticket_price, draw_date, status, image)
-       VALUES (?, ?, ?, ?, ?, 'EN_CURSO', ?)`,
-      [title, product, ticketCount, ticketPrice, drawDate, image]
+      `INSERT INTO raffles (title, product, ticket_count, ticket_price, draw_date, status, image, description)
+       VALUES (?, ?, ?, ?, ?, 'EN_CURSO', ?, ?)`,
+      [title, product, ticketCount, ticketPrice, drawDate, image, description]
     );
     return result.lastInsertRowId;
   },
@@ -38,6 +40,7 @@ export const raffleRepository = {
         r.id,
         r.title,
         r.product,
+        r.description,
         r.ticket_count,
         r.ticket_price,
         r.draw_date,

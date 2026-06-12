@@ -2,6 +2,7 @@ export interface RaffleEntity {
   id: number;
   title: string;
   product: string | null;
+  description: string | null;
   ticket_count: number;
   ticket_price: number;
   draw_date: string;

@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS raffles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     product TEXT,
+    description TEXT,
     ticket_count INTEGER NOT NULL CHECK (ticket_count IN (30, 50, 100, 1000)),
     ticket_price REAL NOT NULL CHECK (ticket_price >= 0),
     draw_date TEXT NOT NULL,

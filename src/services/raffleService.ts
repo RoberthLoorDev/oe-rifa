@@ -20,7 +20,8 @@ export const raffleService = {
       input.ticket_count,
       input.ticket_price,
       dateStr,
-      finalImageVal
+      finalImageVal,
+      input.description || null
     );
 
     await activityService.logActivity(
@@ -64,9 +65,7 @@ export const raffleService = {
         id: String(row.id),
         title: row.title,
         product: row.product,
-        description: row.product 
-          ? `Gran sorteo de: ${row.product}` 
-          : 'Organización y gestión de boletos del sorteo.',
+        description: row.description || '',
         price: row.ticket_price,
         totalNumbers: row.ticket_count,
         assignedNumbers: row.assigned_count,
@@ -129,9 +128,7 @@ export const raffleService = {
       id: String(row.id),
       title: row.title,
       product: row.product,
-      description: row.product 
-        ? `Gran sorteo de: ${row.product}` 
-        : 'Organización y gestión de boletos del sorteo.',
+      description: row.description || '',
       price: row.ticket_price,
       totalNumbers: row.ticket_count,
       assignedNumbers: stats.assigned_count,
