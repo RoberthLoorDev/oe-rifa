@@ -81,6 +81,10 @@ export default function RaffleDashboardScreen() {
             paid={raffle.paidNumbers}
             reserved={raffle.reservedNumbers}
             available={raffle.availableNumbers}
+            onPressAssigned={() => router.push(`/raffle/${raffleId}/numbers?filter=ALL`)}
+            onPressPaid={() => router.push(`/raffle/${raffleId}/numbers?filter=PAGADO`)}
+            onPressReserved={() => router.push(`/raffle/${raffleId}/numbers?filter=RESERVADO`)}
+            onPressAvailable={() => router.push(`/raffle/${raffleId}/numbers?filter=DISPONIBLE`)}
           />
 
           <View className="flex-row gap-3">

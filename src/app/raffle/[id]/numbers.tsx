@@ -11,9 +11,10 @@ import { Ticket } from '@/components/raffle/types';
 import { useRaffleTickets } from '../../../hooks/useRaffleTickets';
 
 export default function NumbersGridScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, filter } = useLocalSearchParams();
   const router = useRouter();
   const raffleId = Array.isArray(id) ? id[0] : id;
+  const filterQuery = Array.isArray(filter) ? filter[0] : filter;
 
   const {
     tickets,
@@ -26,7 +27,15 @@ export default function NumbersGridScreen() {
     releaseTicket
   } = useRaffleTickets(raffleId || '');
 
-  const [selectedFilter, setSelectedFilter] = useState<'ALL' | 'DISPONIBLE' | 'RESERVADO' | 'PAGADO'>('ALL');
+  const [selectedFilter, setSelectedFilter] = useState<'ALL' | 'DISPONIBLE' | 'RESERVADO' | 'PAGADO'>(
+    (filterQuery as 'ALL' | 'DISPONIBLE' | 'RESERVADO' | 'PAGADO') || 'ALL'
+  );
+
+  React.useEffect(() => {
+    if (filterQuery) {
+      setSelectedFilter(filterQuery as 'ALL' | 'DISPONIBLE' | 'RESERVADO' | 'PAGADO');
+    }
+  }, [filterQuery]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showReleaseConfirm, setShowReleaseConfirm] = useState(false);
   const [selectedNums, setSelectedNums] = useState<number[]>([]);
