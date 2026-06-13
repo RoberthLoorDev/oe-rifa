@@ -1,9 +1,9 @@
-import React, { useRef, useMemo } from 'react';
-import { View, Text, ScrollView, Pressable, Platform, ActivityIndicator, Image, useWindowDimensions } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import ViewShot from 'react-native-view-shot';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
+import { useMemo, useRef } from 'react';
+import { ActivityIndicator, Image, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import ViewShot from 'react-native-view-shot';
 import { useRaffleDetail } from '../../../hooks/useRaffleDetail';
 import { useRaffleTickets } from '../../../hooks/useRaffleTickets';
 
@@ -14,7 +14,7 @@ export default function ExportShareScreen() {
 
   const { width } = useWindowDimensions();
   const cardWidth = Math.min(width, 500) - 32;
-  const gridWidth = cardWidth - 72;
+  const gridWidth = cardWidth - 52;
 
   const { raffle, loading: loadingDetail, error: errorDetail } = useRaffleDetail(raffleId || '');
   const { tickets, loading: loadingTickets, error: errorTickets } = useRaffleTickets(raffleId || '');
@@ -33,27 +33,27 @@ export default function ExportShareScreen() {
 
     let cols = 10;
     let gap = 4;
-    let fontSize = 8;
+    let fontSize = 12;
 
     if (total <= 100) {
       cols = 10;
       gap = 4;
-      fontSize = 9;
+      fontSize = 14;
     } else if (total <= 250) {
       cols = 12;
       gap = 3;
-      fontSize = 7.5;
+      fontSize = 11.5;
     } else if (total <= 500) {
       cols = 15;
       gap = 2;
-      fontSize = 6.5;
+      fontSize = 10.5;
     } else {
       cols = 20;
       gap = 2;
-      fontSize = 5.5;
+      fontSize = 9.5;
     }
 
-    const cellSize = Math.floor((gridWidth - (gap * (cols - 1))) / cols);
+    const cellSize = Math.floor((gridWidth - gap * (cols - 1)) / cols);
     return { cols, gap, fontSize, cellSize };
   }, [total, gridWidth]);
 
@@ -81,7 +81,7 @@ export default function ExportShareScreen() {
     const canvasRows = Math.ceil(total / canvasCols);
     const startX = 120;
     const canvasGridWidth = 960;
-    const cellW = (canvasGridWidth - (canvasGap * (canvasCols - 1))) / canvasCols;
+    const cellW = (canvasGridWidth - canvasGap * (canvasCols - 1)) / canvasCols;
     const cellH = cellW;
     const gridHeight = (cellH + canvasGap) * canvasRows - canvasGap;
 
@@ -91,7 +91,14 @@ export default function ExportShareScreen() {
     if (!ctx) return;
 
     ctx.font = 'normal 24px Arial';
-    const wrapText = (context: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
+    const wrapText = (
+      context: CanvasRenderingContext2D,
+      text: string,
+      x: number,
+      y: number,
+      maxWidth: number,
+      lineHeight: number,
+    ) => {
       const words = text.split(' ');
       let line = '';
       let currentY = y;
@@ -131,7 +138,7 @@ export default function ExportShareScreen() {
           line = testLine;
         }
       }
-      descEndY = titleY + 40 + (testLinesCount * 32);
+      descEndY = titleY + 40 + testLinesCount * 32;
     } else if (raffle.description) {
       descEndY = titleY + 72;
     }
@@ -320,7 +327,7 @@ export default function ExportShareScreen() {
         await Sharing.shareAsync(uri, {
           mimeType: 'image/png',
           dialogTitle: `Compartir Rifa: ${raffle?.title}`,
-          UTI: 'public.png'
+          UTI: 'public.png',
         });
       } else {
         alert('La función de compartir no está disponible en este dispositivo.');
@@ -352,10 +359,7 @@ export default function ExportShareScreen() {
       <View className="flex-1 bg-app-bg items-center justify-center p-6">
         <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
         <Text className="text-lg font-bold text-app-dark mt-4 text-center">{error}</Text>
-        <Pressable 
-          onPress={goBack}
-          className="mt-6 bg-app-dark px-6 py-3 rounded-2xl active:scale-95 transition-all"
-        >
+        <Pressable onPress={goBack} className="mt-6 bg-app-dark px-6 py-3 rounded-2xl active:scale-95 transition-all">
           <Text className="text-white font-bold">Volver</Text>
         </Pressable>
       </View>
@@ -364,7 +368,7 @@ export default function ExportShareScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <View 
+      <View
         className="bg-white px-4 pt-12 pb-4 flex-row items-center"
         style={{ borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
       >
@@ -378,46 +382,47 @@ export default function ExportShareScreen() {
         <Text className="text-xl font-bold text-app-dark mx-auto pr-8">Promocionar Rifa</Text>
       </View>
 
-      <ScrollView 
+      <ScrollView
         className="flex-1"
         contentContainerStyle={{ alignItems: 'center', padding: 16, paddingBottom: 60 }}
         showsVerticalScrollIndicator={false}
       >
         <Text className="text-sm font-semibold text-app-gray text-center mb-6 px-4">
-          Esta tarjeta se generará dinámicamente con el estado actual de tus boletos para que la compartas en tus estados de WhatsApp.
+          Esta tarjeta se generará dinámicamente con el estado actual de tus boletos para que la compartas en tus estados de
+          WhatsApp.
         </Text>
 
         <View className="shadow-2xl rounded-3xl overflow-hidden mb-8 bg-white">
           <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 0.95 }}>
-            <View 
-              className="bg-white p-5"
-              style={{ width: cardWidth }}
-            >
+            <View className="bg-white p-5" style={{ width: cardWidth }}>
               <View className="items-center mb-5 px-2">
-                <Text className="text-3xl font-black text-slate-900 text-center tracking-tight leading-tight px-1" numberOfLines={2}>
+                <Text
+                  className="text-3xl font-black text-slate-900 text-center tracking-tight leading-tight px-1"
+                  numberOfLines={2}
+                >
                   {raffle.title}
                 </Text>
 
                 {raffle.description ? (
-                  <Text className="text-sm font-semibold text-slate-500 text-center px-4 mt-2 max-w-[90%] leading-relaxed">
+                  <Text className="text-sm font-semibold text-slate-500 text-center px-4 mt-1 max-w-[90%] leading-relaxed">
                     {raffle.description}
                   </Text>
                 ) : null}
               </View>
 
               <View className="relative w-full mb-5">
-                <Image 
-                  source={{ uri: raffle.image || defaultImage }} 
+                <Image
+                  source={{ uri: raffle.image || defaultImage }}
                   className="rounded-3xl mx-auto"
-                  style={{ 
-                    width: cardWidth - 40, 
-                    aspectRatio: 1 / 1
+                  style={{
+                    width: cardWidth - 100,
+                    aspectRatio: 1 / 1,
                   }}
                   resizeMode="cover"
                 />
-                
+
                 {raffle.product && (
-                  <View 
+                  <View
                     className="absolute bottom-4 left-4 right-4 bg-white px-4 py-3 rounded-2xl shadow-lg border border-slate-100"
                     style={{ backgroundColor: '#FFFFFF' }}
                   >
@@ -435,20 +440,12 @@ export default function ExportShareScreen() {
                   </Text>
                 </View>
                 <View className="w-full max-w-[280px] bg-slate-50 px-4 py-2.5 rounded-full border border-slate-100 items-center">
-                  <Text className="text-slate-700 font-extrabold text-[12px] tracking-wide">
-                    📅 SORTEO: {raffle.date}
-                  </Text>
+                  <Text className="text-slate-700 font-extrabold text-[12px] tracking-wide">📅 SORTEO: {raffle.date}</Text>
                 </View>
               </View>
 
-              <View 
-                className="p-4 rounded-2xl border border-slate-100/80 mt-6 mb-2" 
-                style={{ backgroundColor: '#F8FAFC' }}
-              >
-                <View 
-                  className="flex-row flex-wrap justify-center" 
-                  style={{ gap: gap }}
-                >
+              <View className="rounded-2xl border border-slate-100/80 mt-6 mb-2">
+                <View className="flex-row flex-wrap justify-center" style={{ gap: gap }}>
                   {tickets.map((t, idx) => {
                     const isAvailable = t.status === 'DISPONIBLE';
 
@@ -468,21 +465,21 @@ export default function ExportShareScreen() {
                       <View
                         key={idx}
                         className="items-center justify-center rounded"
-                        style={{ 
-                          width: cellSize, 
-                          height: cellSize, 
+                        style={{
+                          width: cellSize,
+                          height: cellSize,
                           backgroundColor: bgColor,
                           borderWidth: 0.5,
                           borderColor: borderColor,
-                          opacity: isAvailable ? 1.0 : 0.2
+                          opacity: isAvailable ? 1.0 : 0.2,
                         }}
                       >
-                        <Text 
+                        <Text
                           className="font-black text-center"
-                          style={{ 
-                            fontSize: fontSize, 
+                          style={{
+                            fontSize: fontSize,
                             color: textColor,
-                            textDecorationLine: !isAvailable ? 'line-through' : 'none'
+                            textDecorationLine: !isAvailable ? 'line-through' : 'none',
                           }}
                         >
                           {t.num}
@@ -490,10 +487,7 @@ export default function ExportShareScreen() {
 
                         {!isAvailable && (
                           <View className="absolute inset-0 items-center justify-center pointer-events-none">
-                            <View 
-                              className="w-[1.2px] h-[75%] rotate-45" 
-                              style={{ backgroundColor: slashColor }} 
-                            />
+                            <View className="w-[1.2px] h-[75%] rotate-45" style={{ backgroundColor: slashColor }} />
                           </View>
                         )}
                       </View>
