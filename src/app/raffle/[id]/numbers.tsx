@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useCallback, useMemo, useState, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Platform, Pressable, ScrollView, Text, View, ActivityIndicator, Animated } from 'react-native';
@@ -103,7 +103,7 @@ export default function NumbersGridScreen() {
     return tickets.filter((t) => t.status === selectedFilter);
   }, [tickets, selectedFilter]);
 
-  const handlePressTicket = (ticket: Ticket) => {
+  const handlePressTicket = useCallback((ticket: Ticket) => {
     if (ticket.status === 'DISPONIBLE') {
       setSelectedNums((prev) =>
         prev.includes(ticket.num)
@@ -113,7 +113,7 @@ export default function NumbersGridScreen() {
     } else {
       setSelectedTicket(ticket);
     }
-  };
+  }, []);
 
   const handleSaveTicket = async (isPaid: boolean, participantName: string, participantPhone: string) => {
     if (selectedTicket) {
