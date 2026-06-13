@@ -141,7 +141,21 @@ export const raffleService = {
       totalCollected,
       totalExpected,
       progressPercent,
-      daysRemaining
+      daysRemaining,
+      winnerTicketNum: row.winner_ticket_num,
+      winnerName: row.winner_name
     };
+  },
+
+  async setRaffleWinner(raffleId: string, ticketNum: number, winnerName: string): Promise<void> {
+    const id = parseInt(raffleId, 10);
+    if (isNaN(id)) return;
+
+    await raffleRepository.setWinner(id, ticketNum, winnerName);
+
+    await activityService.logActivity(
+      id,
+      `🎉 ¡Sorteo realizado! El boleto #${ticketNum < 10 ? '0' + ticketNum : ticketNum} de ${winnerName} fue el ganador.`
+    );
   }
 };

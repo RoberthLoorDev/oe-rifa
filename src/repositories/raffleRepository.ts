@@ -74,5 +74,13 @@ export const raffleRepository = {
       [raffleId]
     )) as { paid_count: number; reserved_count: number; assigned_count: number } | null;
     return stats || { paid_count: 0, reserved_count: 0, assigned_count: 0 };
+  },
+
+  async setWinner(raffleId: number, ticketNum: number, winnerName: string): Promise<void> {
+    const db = await getDbConnection();
+    await db.runAsync(
+      `UPDATE raffles SET winner_ticket_num = ?, winner_name = ? WHERE id = ?`,
+      [ticketNum, winnerName, raffleId]
+    );
   }
 };

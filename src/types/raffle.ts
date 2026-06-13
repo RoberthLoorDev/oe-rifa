@@ -44,4 +44,6 @@ export interface RaffleDetailModel extends RaffleModel {
   totalExpected: number;
   progressPercent: number;
   daysRemaining: number;
+  winnerTicketNum: number | null;
+  winnerName: string | null;
 }
