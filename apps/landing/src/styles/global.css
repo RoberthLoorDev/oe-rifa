@@ -1,0 +1,15 @@
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.shadow-float {
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-accent-glow {
+  box-shadow: 0 12px 32px -8px rgba(59, 111, 255, 0.4);
+}

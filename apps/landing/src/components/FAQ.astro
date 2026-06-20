@@ -1,0 +1,123 @@
+<section id="faqs" class="py-24 px-8 md:px-16 max-w-4xl mx-auto">
+  <div class="text-center mb-16">
+    <span class="border border-gray-300 rounded-full px-5 py-2 text-[10px] font-mono font-bold uppercase tracking-widest mb-6 inline-block text-gray-600">
+      FAQs
+    </span>
+    <h2 class="text-4xl font-display font-medium mb-4 text-app-dark">Preguntas frecuentes</h2>
+    <p class="font-mono text-xs text-gray-500">Hemos respondido a las dudas más comunes abajo.</p>
+  </div>
+
+  <div class="space-y-0" id="faq-container">
+    <div class="border-t border-gray-200 py-6 faq-item">
+      <div class="flex justify-between items-start gap-4 cursor-pointer group" data-index="0">
+        <div class="flex gap-6">
+          <span class="font-mono text-[10px] font-bold text-gray-400 mt-1">01</span>
+          <div>
+            <h4 class="font-display font-semibold text-lg text-app-dark select-none">¿Funciona sin internet?</h4>
+            <div class="faq-content overflow-hidden transition-all duration-300 mt-4">
+              <p class="font-mono text-xs text-gray-600 leading-relaxed max-w-2xl">
+                Sí, la app es 100% offline. Está diseñada específicamente para que pueda usarse en zonas donde el acceso a internet llega a ser limitado. En un futuro se incluirán cuentas para sincronizar y respaldar tu información cuando tengas conexión.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-app-accent text-white flex items-center justify-center shrink-0 transition-colors faq-btn">
+          <i class="ph-bold ph-minus faq-icon"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 py-6 hover:bg-gray-50 transition-colors faq-item">
+      <div class="flex justify-between items-start gap-4 cursor-pointer" data-index="1">
+        <div class="flex gap-6">
+          <span class="font-mono text-[10px] font-bold text-gray-400 mt-1">02</span>
+          <div>
+            <h4 class="font-display font-semibold text-lg text-app-dark select-none">¿Puedo llevar un control de quiénes me deben?</h4>
+            <div class="faq-content hidden overflow-hidden transition-all duration-300 mt-4">
+              <p class="font-mono text-xs text-gray-600 leading-relaxed max-w-2xl">
+                ¡Por supuesto! Aunque la app no procesa transacciones, está diseñada para llevar ese registro por ti. Puedes clasificar cada número como "Disponible", "Reservado" (apartado, pendiente de pago) o "Pagado", dándote una vista clara de quién te debe el valor de su número.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-[#EAECE6] text-app-dark flex items-center justify-center shrink-0 transition-colors faq-btn">
+          <i class="ph-bold ph-plus faq-icon"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 py-6 hover:bg-gray-50 transition-colors faq-item">
+      <div class="flex justify-between items-start gap-4 cursor-pointer" data-index="2">
+        <div class="flex gap-6">
+          <span class="font-mono text-[10px] font-bold text-gray-400 mt-1">03</span>
+          <div>
+            <h4 class="font-display font-semibold text-lg text-app-dark select-none">¿Se pueden compartir los resultados?</h4>
+            <div class="faq-content hidden overflow-hidden transition-all duration-300 mt-4">
+              <p class="font-mono text-xs text-gray-600 leading-relaxed max-w-2xl">
+                Sí. RifaApp te permite exportar imágenes promocionales con la lista completa de números (verdes y rojos) para subir a tu estado. Al terminar, también puedes exportar una imagen oficial de "¡Tenemos Ganador!" lista para compartir por WhatsApp.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-[#EAECE6] text-app-dark flex items-center justify-center shrink-0 transition-colors faq-btn">
+          <i class="ph-bold ph-plus faq-icon"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-y border-gray-200 py-6 hover:bg-gray-50 transition-colors faq-item">
+      <div class="flex justify-between items-start gap-4 cursor-pointer" data-index="3">
+        <div class="flex gap-6">
+          <span class="font-mono text-[10px] font-bold text-gray-400 mt-1">04</span>
+          <div>
+            <h4 class="font-display font-semibold text-lg text-app-dark select-none">¿Puedo hacer el sorteo en la misma app?</h4>
+            <div class="faq-content hidden overflow-hidden transition-all duration-300 mt-4">
+              <p class="font-mono text-xs text-gray-600 leading-relaxed max-w-2xl">
+                Sí, la app cuenta con una ruleta animada. Soporta dinámicas clásicas como volver a sortear si quieres que "los primeros 3 números no ganen y el 4to sí". Si prefieres hacer el sorteo físicamente con papelitos para dar más legalidad y confianza, la app también te permite asignar al ganador manualmente para cerrar el registro.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-[#EAECE6] text-app-dark flex items-center justify-center shrink-0 transition-colors faq-btn">
+          <i class="ph-bold ph-plus faq-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('faq-container');
+    if (!container) return;
+
+    container.addEventListener('click', (e) => {
+      const item = e.target.closest('.faq-item');
+      if (!item) return;
+
+      const content = item.querySelector('.faq-content');
+      const icon = item.querySelector('.faq-icon');
+      const btn = item.querySelector('.faq-btn');
+
+      const isOpen = !content.classList.contains('hidden');
+
+      document.querySelectorAll('.faq-content').forEach(c => c.classList.add('hidden'));
+      document.querySelectorAll('.faq-icon').forEach(i => {
+        i.classList.remove('ph-minus');
+        i.classList.add('ph-plus');
+      });
+      document.querySelectorAll('.faq-btn').forEach(b => {
+        b.classList.remove('bg-app-accent', 'text-white');
+        b.classList.add('bg-[#EAECE6]', 'text-app-dark');
+      });
+
+      if (!isOpen) {
+        content.classList.remove('hidden');
+        icon.classList.remove('ph-plus');
+        icon.classList.add('ph-minus');
+        btn.classList.remove('bg-[#EAECE6]', 'text-app-dark');
+        btn.classList.add('bg-app-accent', 'text-white');
+      }
+    });
+  });
+</script>
