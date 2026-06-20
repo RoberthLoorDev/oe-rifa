@@ -1,3 +1,7 @@
+# Code Style
+- Do NOT add comments to code unless the logic is genuinely complex (e.g. the draw components). Avoid inline comments on every line.
+- Respect existing design tokens and colors from `tailwind.config.mjs` and `src/constants/theme.ts`.
+
 # Expo HAS CHANGED
 
 Read the exact versioned docs at https://docs.expo.dev/versions/v56.0.0/ before writing any code.
@@ -10,8 +14,11 @@ This is a pnpm monorepo. Structure:
 
 Commands:
 - `pnpm mobile:start` - Expo dev
+- `pnpm mobile:android` - Expo Android build
 - `pnpm landing:dev` - Astro dev
+- `pnpm landing:build` - build Astro
 - `pnpm -r typecheck` - typecheck all
+- `pnpm -r lint` - lint all
 
 # Versioning
 
