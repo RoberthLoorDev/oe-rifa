@@ -12,6 +12,8 @@ export interface RaffleDbRow {
   status: string;
   image: string | null;
   assigned_count: number;
+  winner_ticket_num: number | null;
+  winner_name: string | null;
 }
 
 export const raffleRepository = {
@@ -46,6 +48,8 @@ export const raffleRepository = {
         r.draw_date,
         r.status,
         r.image,
+        r.winner_ticket_num,
+        r.winner_name,
         COUNT(t.id) AS assigned_count
        FROM raffles r
        LEFT JOIN tickets t ON r.id = t.raffle_id
@@ -81,6 +85,14 @@ export const raffleRepository = {
     await db.runAsync(
       `UPDATE raffles SET winner_ticket_num = ?, winner_name = ? WHERE id = ?`,
       [ticketNum, winnerName, raffleId]
+    );
+  },
+
+  async updateStatus(raffleId: number, status: 'EN_CURSO' | 'COMPLETA' | 'CERRADA'): Promise<void> {
+    const db = await getDbConnection();
+    await db.runAsync(
+      `UPDATE raffles SET status = ? WHERE id = ?`,
+      [status, raffleId]
     );
   }
 };

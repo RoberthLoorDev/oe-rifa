@@ -8,6 +8,8 @@ export interface Raffle {
   status: 'En curso' | 'Completa' | 'Cerrada';
   date: string;
   image: string | null;
+  winnerName?: string | null;
+  winnerTicketNum?: number | null;
 }
 
 export interface RaffleDbRow {

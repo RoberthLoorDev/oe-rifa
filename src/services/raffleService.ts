@@ -72,6 +72,8 @@ export const raffleService = {
         status: visualStatus,
         date: formatDrawDateStr(row.draw_date),
         image: imageUri,
+        winnerName: row.winner_name,
+        winnerTicketNum: row.winner_ticket_num,
       };
     });
   },
@@ -143,7 +145,8 @@ export const raffleService = {
       progressPercent,
       daysRemaining,
       winnerTicketNum: row.winner_ticket_num,
-      winnerName: row.winner_name
+      winnerName: row.winner_name,
+      rawDrawDate: row.draw_date,
     };
   },
 
@@ -156,6 +159,18 @@ export const raffleService = {
     await activityService.logActivity(
       id,
       `🎉 ¡Sorteo realizado! El boleto #${ticketNum < 10 ? '0' + ticketNum : ticketNum} de ${winnerName} fue el ganador.`
+    );
+  },
+
+  async closeRaffle(raffleId: string): Promise<void> {
+    const id = parseInt(raffleId, 10);
+    if (isNaN(id)) return;
+
+    await raffleRepository.updateStatus(id, 'CERRADA');
+
+    await activityService.logActivity(
+      id,
+      '🔒 Rifa finalizada y cerrada.'
     );
   }
 };

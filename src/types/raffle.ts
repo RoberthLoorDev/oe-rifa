@@ -34,6 +34,8 @@ export interface RaffleModel {
   status: 'En curso' | 'Completa' | 'Cerrada';
   date: string;
   image: string | null;
+  winnerName?: string | null;
+  winnerTicketNum?: number | null;
 }
 
 export interface RaffleDetailModel extends RaffleModel {
@@ -46,4 +48,5 @@ export interface RaffleDetailModel extends RaffleModel {
   daysRemaining: number;
   winnerTicketNum: number | null;
   winnerName: string | null;
+  rawDrawDate: string;
 }
