@@ -1,12 +1,14 @@
-import React from 'react';
-import { View, Text, ScrollView, Pressable, Platform, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 
+import FinishRaffleModal from '@/components/draw/FinishRaffleModal';
 import DetailBanner from '@/components/raffle-detail/DetailBanner';
 import ProgressCard from '@/components/raffle-detail/ProgressCard';
-import StatsGrid from '@/components/raffle-detail/StatsGrid';
 import RecentActivity from '@/components/raffle-detail/RecentActivity';
+import StatsGrid from '@/components/raffle-detail/StatsGrid';
+import { raffleService } from '@/services/raffleService';
 import { useRaffleDetail } from '../../../hooks/useRaffleDetail';
 
 export default function RaffleDashboardScreen() {
@@ -14,7 +16,9 @@ export default function RaffleDashboardScreen() {
   const router = useRouter();
   const raffleId = Array.isArray(id) ? id[0] : id;
 
-  const { raffle, activities, loading, error } = useRaffleDetail(raffleId || '');
+  const { raffle, activities, loading, error, refresh } = useRaffleDetail(raffleId || '');
+  const [showFinishModal, setShowFinishModal] = useState(false);
+  const [finishing, setFinishing] = useState(false);
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -23,6 +27,20 @@ export default function RaffleDashboardScreen() {
       router.replace('/');
     }
   };
+
+  const handleFinishRaffle = useCallback(async () => {
+    if (!raffleId) return;
+    setFinishing(true);
+    try {
+      await raffleService.closeRaffle(raffleId);
+      setShowFinishModal(false);
+      refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setFinishing(false);
+    }
+  }, [raffleId, refresh]);
 
   if (loading) {
     return (
@@ -39,10 +57,7 @@ export default function RaffleDashboardScreen() {
         <Text className="text-lg font-bold text-app-dark mt-4 text-center">
           {error || 'No se encontró la rifa especificada.'}
         </Text>
-        <Pressable 
-          onPress={goBack}
-          className="mt-6 bg-app-dark px-6 py-3 rounded-2xl active:scale-95 transition-all"
-        >
+        <Pressable onPress={goBack} className="mt-6 bg-app-dark px-6 py-3 rounded-2xl active:scale-95 transition-all">
           <Text className="text-white font-bold">Volver al Inicio</Text>
         </Pressable>
       </View>
@@ -50,15 +65,23 @@ export default function RaffleDashboardScreen() {
   }
 
   const defaultImage = 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&h=600&fit=crop';
+  const hasWinner = raffle.winnerTicketNum != null && raffle.winnerName != null;
+  const isClosed = raffle.status === 'Cerrada';
 
   return (
     <View className="flex-1 bg-app-bg relative">
-      <ScrollView 
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 60 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <DetailBanner 
+      <FinishRaffleModal
+        visible={showFinishModal}
+        winnerName={raffle.winnerName}
+        winnerTicketNum={raffle.winnerTicketNum}
+        drawDate={raffle.rawDrawDate}
+        onClose={() => setShowFinishModal(false)}
+        onConfirm={handleFinishRaffle}
+        loading={finishing}
+      />
+
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
+        <DetailBanner
           title={raffle.title}
           product={raffle.product || undefined}
           status={raffle.status}
@@ -75,7 +98,7 @@ export default function RaffleDashboardScreen() {
             </View>
           ) : null}
 
-          <ProgressCard 
+          <ProgressCard
             totalCollected={raffle.totalCollected}
             totalExpected={raffle.totalExpected}
             progressPercent={raffle.progressPercent}
@@ -83,7 +106,7 @@ export default function RaffleDashboardScreen() {
             daysRemaining={raffle.daysRemaining}
           />
 
-          <StatsGrid 
+          <StatsGrid
             assigned={raffle.assignedNumbers}
             paid={raffle.paidNumbers}
             reserved={raffle.reservedNumbers}
@@ -94,40 +117,56 @@ export default function RaffleDashboardScreen() {
             onPressAvailable={() => router.push(`/raffle/${raffleId}/numbers?filter=DISPONIBLE`)}
           />
 
-          <View className="flex-row gap-3">
-            <Pressable 
-              onPress={() => router.push(`/raffle/${raffleId}/numbers`)}
-              className="flex-1 bg-app-dark py-3.5 rounded-2xl items-center justify-center gap-1 active:scale-95 transition-all"
-              style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
-            >
-              <Ionicons name="grid-outline" size={20} color="#ffffff" />
-              <Text className="text-xs font-bold uppercase tracking-wider text-white">Números</Text>
-            </Pressable>
+          {!isClosed ? (
+            <>
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => router.push(`/raffle/${raffleId}/numbers`)}
+                  className="flex-1 bg-app-dark py-3.5 rounded-2xl items-center justify-center gap-1 active:scale-95 transition-all"
+                  style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
+                >
+                  <Ionicons name="grid-outline" size={20} color="#ffffff" />
+                  <Text className="text-xs font-bold uppercase tracking-wider text-white">Números</Text>
+                </Pressable>
 
-            <Pressable 
-              onPress={() => router.push(`/raffle/${raffleId}/share`)}
-              className="flex-1 bg-white py-3.5 rounded-2xl items-center justify-center gap-1 shadow-card border border-gray-100 active:scale-95 transition-all"
-              style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
-            >
-              <Ionicons name="share-social-outline" size={20} color="#111827" />
-              <Text className="text-xs font-bold uppercase tracking-wider text-app-dark">Exportar</Text>
-            </Pressable>
+                <Pressable
+                  onPress={() => router.push(`/raffle/${raffleId}/share`)}
+                  className="flex-1 bg-white py-3.5 rounded-2xl items-center justify-center gap-1 shadow-card border border-gray-100 active:scale-95 transition-all"
+                  style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
+                >
+                  <Ionicons name="share-social-outline" size={20} color="#111827" />
+                  <Text className="text-xs font-bold uppercase tracking-wider text-app-dark">Exportar</Text>
+                </Pressable>
 
-            <Pressable 
-              onPress={() => router.push(`/raffle/${raffleId}/draw`)}
-              className="flex-1 bg-app-accent py-3.5 rounded-2xl items-center justify-center gap-1 shadow-lg shadow-app-accent/20 active:scale-95 transition-all"
-              style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
-            >
-              <Ionicons name="trophy-outline" size={20} color="#ffffff" />
-              <Text className="text-xs font-bold uppercase tracking-wider text-white">Sorteo</Text>
-            </Pressable>
-          </View>
+                <Pressable
+                  onPress={() => router.push(`/raffle/${raffleId}/draw`)}
+                  className="flex-1 bg-app-accent py-3.5 rounded-2xl items-center justify-center gap-1 shadow-lg shadow-app-accent/20 active:scale-95 transition-all"
+                  style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
+                >
+                  <Ionicons name="trophy-outline" size={20} color="#ffffff" />
+                  <Text className="text-xs font-bold uppercase tracking-wider text-white">Sorteo</Text>
+                </Pressable>
+              </View>
 
-          <RecentActivity 
-            activities={activities}
-            onViewAllPress={() => router.push(`/raffle/${raffleId}/participants`)}
-          />
+              {hasWinner ? (
+                <Pressable
+                  onPress={() => setShowFinishModal(true)}
+                  className="bg-reservado py-3.5 rounded-2xl items-center justify-center flex-row gap-2 active:scale-95 transition-all shadow-lg"
+                  style={Platform.OS === 'web' ? { cursor: 'pointer', outlineStyle: 'none' as any } : undefined}
+                >
+                  <Ionicons name="flag-outline" size={18} color="#ffffff" />
+                  <Text className="text-sm font-black uppercase tracking-wider text-white">Finalizar rifa</Text>
+                </Pressable>
+              ) : null}
+            </>
+          ) : (
+            <View className="bg-gray-100 py-4 rounded-2xl items-center justify-center flex-row">
+              <Ionicons name="lock-closed" size={18} color="#6B7280" />
+              <Text className="text-sm font-bold text-gray-600 ml-2">Rifa finalizada</Text>
+            </View>
+          )}
 
+          <RecentActivity activities={activities} onViewAllPress={() => router.push(`/raffle/${raffleId}/participants`)} />
         </View>
       </ScrollView>
     </View>
