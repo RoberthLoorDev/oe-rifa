@@ -241,7 +241,7 @@ export default function DrawRoulette({
               }}
             />
           </>
-        ) : celebrating && targetNumber !== undefined ? (
+        ) : targetNumber !== undefined ? (
           <Animated.View style={[resultStyle, { flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
             <Text style={{ fontSize: 72, fontWeight: '900', color: '#0F172A', fontVariant: ['tabular-nums'] }}>
               {fmt(targetNumber)}
