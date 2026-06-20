@@ -1,0 +1,34 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = 'RifaApp | Gestiona tus rifas offline gratis', description = 'La mejor aplicación móvil 100% offline para organizar, llevar el registro y sortear tus rifas desde tu celular.' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="description" content={description} />
+  <meta name="keywords" content="app para rifas, organizar rifas offline, gestionar sorteos, ruleta de rifas, control de pagos de rifas" />
+  <meta name="author" content="RifaApp" />
+  <meta property="og:title" content="RifaApp | Gestiona tus rifas como un profesional" />
+  <meta property="og:description" content="Organiza, registra números y sortea rifas desde tu celular. 100% offline y sin complicaciones." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="generator" content={Astro.generator} />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <title>{title}</title>
+</head>
+<body class="p-4 md:p-8 lg:p-12 min-h-screen bg-[#EBECE6] text-[#111111] antialiased selection:bg-app-accent selection:text-white">
+  <slot />
+</body>
+</html>

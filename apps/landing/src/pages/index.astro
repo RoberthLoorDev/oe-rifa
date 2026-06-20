@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import Mission from '../components/Mission.astro';
+import Features from '../components/Features.astro';
+import FAQ from '../components/FAQ.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+---
+
+<Layout>
+  <main class="max-w-[1400px] mx-auto bg-white rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm relative overflow-hidden">
+    <Navbar />
+    <Hero />
+    <div class="w-full h-px bg-gray-200" />
+    <Mission />
+    <Features />
+    <FAQ />
+    <Footer />
+  </main>
+
+  <div class="max-w-[1400px] mx-auto py-8 px-8 flex justify-between items-center text-gray-500 font-mono text-[10px] uppercase tracking-widest">
+    <span>© 2026 RifaApp</span>
+    <a href="https://github.com/anomalyco/rifa-app/issues" target="_blank" class="hover:text-black transition-colors">GitHub Issues &nearr;</a>
+  </div>
+</Layout>
