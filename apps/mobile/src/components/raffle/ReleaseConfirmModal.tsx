@@ -41,7 +41,7 @@ export default function ReleaseConfirmModal({
             </View>
             <Text className="text-xl font-bold text-app-dark text-center">¿Liberar boleto?</Text>
             <Text className="text-sm text-gray-500 text-center mt-2 leading-relaxed">
-              El boleto #{ticket.num < 10 ? `0${ticket.num}` : ticket.num} registrado a nombre de <Text className="font-extrabold text-app-dark">"{ticket.participant || 'Participante'}"</Text> será liberado y se desvinculará.
+              El boleto #{ticket.num < 10 ? `0${ticket.num}` : ticket.num} registrado a nombre de <Text className="font-extrabold text-app-dark">{ticket.participant || 'Participante'}</Text> será liberado y se desvinculará.
             </Text>
           </View>
 
