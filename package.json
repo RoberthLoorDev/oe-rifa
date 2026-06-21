@@ -1,9 +1,6 @@
 {
   "name": "oe-rifa",
   "private": true,
-  "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "sharp", "unrs-resolver"]
-  },
   "scripts": {
     "mobile": "pnpm --filter @oe-rifa/mobile",
     "mobile:start": "pnpm --filter @oe-rifa/mobile start",
