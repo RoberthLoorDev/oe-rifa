@@ -2,20 +2,36 @@
   <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
 
   <div class="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
-    <h2 class="text-5xl md:text-6xl font-display font-medium mb-8">Descarga RifaApp</h2>
+    <h2 class="text-5xl md:text-6xl font-display font-medium mb-8">Descarga OeRifa</h2>
     <p class="font-mono text-sm text-gray-400 mb-10 max-w-md mx-auto">
       Instala la APK y comienza a gestionar tus sorteos de forma profesional en minutos.
     </p>
-    <a href="https://github.com/anomalyco/rifa-app/releases/latest/download/app-release.apk" class="inline-flex items-center gap-3 bg-app-accent hover:bg-app-accentHover text-white px-8 py-4 rounded-full font-mono font-bold text-sm uppercase transition-all shadow-accent-glow">
+    <a href="https://github.com/RoberthLoorDev/oe-rifa/releases/latest/download/app-release.apk" class="inline-flex items-center gap-3 bg-app-accent hover:bg-app-accentHover text-white px-8 py-4 rounded-full font-mono font-bold text-sm uppercase transition-all shadow-accent-glow">
       Descargar APK <i class="ph-fill ph-download-simple text-lg"></i>
     </a>
 
-    <a href="https://github.com/anomalyco/rifa-app" target="_blank" rel="noopener noreferrer" class="mt-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors font-mono text-xs border border-gray-700/50 hover:border-gray-500 rounded-full px-4 py-2">
+    <a href="https://github.com/RoberthLoorDev/oe-rifa" target="_blank" rel="noopener noreferrer" class="mt-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors font-mono text-xs border border-gray-700/50 hover:border-gray-500 rounded-full px-4 py-2">
       <i class="ph-fill ph-github-logo text-base"></i> Ver código fuente en GitHub
     </a>
 
     <p class="font-mono text-[10px] text-gray-500 mt-6 uppercase tracking-widest">
-      Versión 1.0.0 • Android 7.0+
+      Versión <span id="version-text">1.0.0</span> • Android 7.0+
     </p>
   </div>
 </footer>
+
+<script>
+  (async () => {
+    try {
+      const res = await fetch(
+        "https://api.github.com/repos/RoberthLoorDev/oe-rifa/releases/latest",
+        { headers: { Accept: "application/vnd.github.v3+json" } }
+      );
+      if (!res.ok) throw new Error();
+      const release = await res.json();
+      document.getElementById("version-text").textContent = release.tag_name;
+    } catch {
+      // fallback: muestra el valor por defecto
+    }
+  })();
+</script>

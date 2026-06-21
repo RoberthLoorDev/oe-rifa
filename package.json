@@ -1,15 +1,15 @@
 {
-  "name": "rifa-app",
+  "name": "oe-rifa",
   "private": true,
   "scripts": {
-    "mobile": "pnpm --filter @rifa-app/mobile",
-    "mobile:start": "pnpm --filter @rifa-app/mobile start",
-    "mobile:android": "pnpm --filter @rifa-app/mobile android",
-    "mobile:ios": "pnpm --filter @rifa-app/mobile ios",
-    "mobile:lint": "pnpm --filter @rifa-app/mobile lint",
-    "mobile:typecheck": "pnpm --filter @rifa-app/mobile typecheck",
-    "landing:dev": "pnpm --filter @rifa-app/landing dev",
-    "landing:build": "pnpm --filter @rifa-app/landing build",
+    "mobile": "pnpm --filter @oe-rifa/mobile",
+    "mobile:start": "pnpm --filter @oe-rifa/mobile start",
+    "mobile:android": "pnpm --filter @oe-rifa/mobile android",
+    "mobile:ios": "pnpm --filter @oe-rifa/mobile ios",
+    "mobile:lint": "pnpm --filter @oe-rifa/mobile lint",
+    "mobile:typecheck": "pnpm --filter @oe-rifa/mobile typecheck",
+    "landing:dev": "pnpm --filter @oe-rifa/landing dev",
+    "landing:build": "pnpm --filter @oe-rifa/landing build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint"
   }
