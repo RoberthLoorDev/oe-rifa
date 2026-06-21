@@ -1,5 +1,5 @@
 {
-  "name": "@rifa-app/mobile",
+  "name": "@oe-rifa/mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {

@@ -162,7 +162,7 @@ export default function DrawScreen() {
       ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('RifaApp • RESULTADO OFICIAL DEL SORTEO', 600, 160);
+      ctx.fillText('OeRifa • RESULTADO OFICIAL DEL SORTEO', 600, 160);
 
       // Raffle Title
       ctx.fillStyle = '#0F172A';
