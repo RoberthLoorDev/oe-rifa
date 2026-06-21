@@ -88,3 +88,7 @@ When asked "generate changelog":
 - El APK solo se genera con tags, no en pushes normales
 - `CHANGELOG.md` debe existir en la raíz para que `body_path` no falle
 - `eas.json` en `apps/mobile/` con perfil `production` (buildType: apk)
+
+## Notas técnicas
+- Node 22 en workflows (GitHub Actions deprecó Node 20)
+- `pnpm.onlyBuiltDependencies` en root `package.json` permite builds de esbuild, sharp, unrs-resolver
