@@ -1,0 +1,57 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+---
+
+<LegalLayout title="OeRifa | Aviso Legal y Privacidad" description="Aviso legal y políticas de privacidad de OeRifa. Conoce cómo gestionamos los datos (100% offline) y tus responsabilidades.">
+  <article class="px-8 md:px-16 py-16 md:py-24">
+    <span class="border border-gray-300 rounded-full px-5 py-2 text-[10px] font-mono font-bold uppercase tracking-widest mb-8 inline-block text-gray-600">
+      Documento Legal
+    </span>
+    <h1 class="text-4xl md:text-5xl lg:text-[56px] leading-[1.1] font-display font-medium tracking-tight mb-6 text-app-dark">
+      Aviso Legal y<br />Política de Privacidad
+    </h1>
+    <p class="font-mono text-sm text-gray-500 mb-16 border-b border-gray-200 pb-8">
+      Última actualización: Noviembre 2026
+    </p>
+
+    <div class="space-y-12 font-sans text-gray-600 leading-relaxed max-w-3xl">
+      <section>
+        <h2 class="font-display font-semibold text-2xl text-app-dark mb-4">1. Naturaleza de los datos y funcionamiento Offline</h2>
+        <p class="mb-4">
+          OeRifa es una aplicación de gestión local (100% offline). En su versión actual, <strong>OeRifa NO recolecta, transmite, sube a la nube ni procesa información personal en servidores externos</strong>. Todos los datos ingresados en la aplicación (incluyendo nombres, apellidos, números de teléfono y fotografías) se almacenan exclusivamente en la base de datos local (SQLite) del dispositivo móvil del usuario.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display font-semibold text-2xl text-app-dark mb-4">2. Responsabilidad frente a la LOPDP (Ecuador)</h2>
+        <p class="mb-4">
+          De conformidad con la <strong>Ley Orgánica de Protección de Datos Personales (LOPDP) de Ecuador</strong>, los creadores de OeRifa actúan únicamente como proveedores de la herramienta de software.
+        </p>
+        <p class="mb-4">
+          El <strong>usuario final que instala y utiliza la aplicación</strong> es considerado el <strong>Responsable del Tratamiento</strong> de los datos personales de terceros (los participantes de sus rifas). Es responsabilidad exclusiva del usuario obtener el consentimiento adecuado de sus clientes antes de registrar sus nombres y números de teléfono en su dispositivo. OeRifa se exime de cualquier responsabilidad derivada del mal uso de datos de terceros por parte del usuario de la aplicación.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display font-semibold text-2xl text-app-dark mb-4">3. Transparencia y Código Abierto</h2>
+        <p class="mb-4">
+          Para garantizar la total transparencia sobre el manejo de la información, el código fuente de OeRifa está disponible públicamente bajo un modelo de código abierto (Open Source). Cualquier persona interesada puede auditar el código en nuestro repositorio oficial de GitHub para verificar que, efectivamente, la aplicación no cuenta con rastreadores ocultos ni exfiltración de datos.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display font-semibold text-2xl text-app-dark mb-4">4. Actualizaciones futuras (Sincronización en la Nube)</h2>
+        <p class="mb-4">
+          Si en el futuro OeRifa implementa funcionalidades de respaldo o sincronización en la nube mediante la creación de cuentas de usuario, esta Política de Privacidad será actualizada sustancialmente. Dicha actualización será notificada dentro de la aplicación y requerirá la aceptación explícita de los nuevos términos antes de que cualquier dato abandone el almacenamiento local del dispositivo.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display font-semibold text-2xl text-app-dark mb-4">5. Contacto</h2>
+        <p class="mb-4">
+          Si tienes dudas sobre el código, vulnerabilidades o privacidad, puedes contactarnos abriendo un "Issue" público en nuestro repositorio de GitHub.
+        </p>
+      </section>
+    </div>
+  </article>
+</LegalLayout>
