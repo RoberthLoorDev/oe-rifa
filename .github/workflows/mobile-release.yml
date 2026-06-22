@@ -39,9 +39,9 @@ jobs:
 
       - name: Download APK
         run: |
-          pnpm --filter @oe-rifa/mobile eas build:download \
-            -p android \
-            --out apps/mobile/app-release.apk
+          cd apps/mobile
+          pnpm eas build:download -p android
+          mv *.apk app-release.apk 2>/dev/null || true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
