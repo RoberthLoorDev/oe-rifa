@@ -10,4 +10,7 @@ config.watchFolders = [
   path.resolve(__dirname, '../../node_modules'),
 ];
 
-module.exports = withNativeWind(config, { input: './src/global.css' });
+module.exports = withNativeWind(config, {
+  input: './src/global.css',
+  configPath: path.resolve(__dirname, 'tailwind.config.js'),
+});
