@@ -40,7 +40,8 @@ jobs:
       - name: Download APK
         run: |
           cd apps/mobile
-          pnpm eas build:download -p android
+          BUILD_ID=$(pnpm eas build:list --platform android --status finished --limit 1 --json 2>/dev/null | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(JSON.parse(d)[0].id)}catch{console.error('No builds found')}})")
+          pnpm eas build:download --build-id $BUILD_ID --platform android
           mv *.apk app-release.apk 2>/dev/null || true
 
       - name: Create GitHub Release
